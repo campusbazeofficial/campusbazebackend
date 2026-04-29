@@ -40,6 +40,7 @@ import {
     validateReviewDoc,
 } from "../controllers/verifications.controller.js";
 import { adminGetTicket, adminListTickets, adminUpdateTicket, validateAdminUpdateTicket } from "../controllers/support.controller.js";
+import { updateLastSeen } from "../middlewares/updateLastSeen.js";
 
 const router = Router();
 
@@ -48,7 +49,7 @@ router.post(ADMIN_PATHS.LOGIN, authLimiter, validateAdminLogin, adminLogin);
 
 // ─── All routes below require a valid admin JWT ───────────────────────────────
 router.use(authenticate, authorize(USER_ROLE.ADMIN as "admin"));
-
+router.use(updateLastSeen)
 // ── Verifications ─────────────────────────────────────────────────────────────
 router.get(  ADMIN_PATHS.VERIFICATIONS,        listVerificationsAdmin);
 router.get(  ADMIN_PATHS.VERIFICATION_DETAIL,  getVerificationDetail);
@@ -98,7 +99,7 @@ router.patch(ADMIN_PATHS.TOGGLE_PLAN, togglePlanStatus);
 
 // ─── Support Tickets (attach to /api/v1/admin/support) ─────────────────
 router.get('/support', adminListTickets)
-router.get('/support/:ticketId', authenticate, authorize('admin'), adminGetTicket)
+router.get('/support/:ticketId',  authorize('admin'), adminGetTicket)
 router.patch('/support/:ticketId',  validateAdminUpdateTicket, adminUpdateTicket)
 
 export default router;

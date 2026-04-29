@@ -10,11 +10,12 @@ import {
   requestWithdrawal,  validateWithdrawal,
   getWithdrawalHistory,
 } from "../controllers/wallets.controller.js";
+import { updateLastSeen } from "../middlewares/updateLastSeen.js";
 
 const router = Router();
 
 router.use(authenticate);
-
+router.use(updateLastSeen)
 // ─── Balance & ledger ─────────────────────────────────────────────────────────
 router.get(WALLET_PATHS.BALANCE,      getBalance);
 router.get(WALLET_PATHS.TRANSACTIONS, getTransactions);

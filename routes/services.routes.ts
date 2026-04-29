@@ -21,6 +21,7 @@ import {
   payForOrder,
   cancelOrderAsSeller,
 } from "../controllers/services.controller.js";
+import { updateLastSeen } from "../middlewares/updateLastSeen.js";
 
 const router = Router();
 
@@ -28,7 +29,7 @@ router.get(SERVICE_PATHS.LIST,   browseListings);
 router.get(SERVICE_PATHS.DETAIL, getListing);
 
 router.use(authenticate);
-
+router.use(updateLastSeen)
 router.get(SERVICE_PATHS.MY_ORDERS_BUYING,  myOrdersBuying);
 router.get(SERVICE_PATHS.MY_ORDERS_SELLING, myOrdersSelling);
 router.get(SERVICE_PATHS.ORDER_DETAIL,      getOrder);

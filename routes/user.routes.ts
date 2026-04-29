@@ -18,13 +18,14 @@ import {
   deleteAccount,
 } from "../controllers/users.controller.js";
 import { USER_ROLE } from "../utils/constant.js";
+import { updateLastSeen } from "../middlewares/updateLastSeen.js";
 
 const router = Router();
 
 router.get(USER_PATHS.VALIDATE_REFERRAL_CODE, validateReferralCode)
 
 router.use(authenticate);
-
+router.use(updateLastSeen)
 
 router.get(USER_PATHS.ME, getMe);
 

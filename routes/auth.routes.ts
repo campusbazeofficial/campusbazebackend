@@ -16,6 +16,7 @@ import {
     changePassword,       validateChangePassword,
     revokeSession,
 } from '../controllers/auth.controller.js'
+import { updateLastSeen } from '../middlewares/updateLastSeen.js'
 
 const router = Router()
 
@@ -31,8 +32,9 @@ router.post(AUTH_PATHS.FORGOT_PASSWORD,    authLimiter,          validateForgotP
 router.post(AUTH_PATHS.RESET_PASSWORD,     resetPasswordLimiter, validateResetPassword,      resetPassword)
 
 // ─── Protected ────────────────────────────────────────────────────────────────
-router.post( AUTH_PATHS.LOGOUT_ALL,    authenticate,                        logoutAll)
-router.delete(AUTH_PATHS.REVOKE_SESSION,  authenticate,                          revokeSession)
-router.patch(AUTH_PATHS.CHANGE_PASSWORD, authenticate, validateChangePassword, changePassword)
-
+router.use(authenticate)
+router.use(updateLastSeen)
+router.post( AUTH_PATHS.LOGOUT_ALL,                           logoutAll)
+router.delete(AUTH_PATHS.REVOKE_SESSION,                           revokeSession)
+router.patch(AUTH_PATHS.CHANGE_PASSWORD, validateChangePassword, changePassword)
 export default router
