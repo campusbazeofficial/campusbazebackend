@@ -64,7 +64,7 @@ const notificationService = new NotificationService()
 export class ErrandService extends BaseService {
     // ── Post errand + debit CBC ───────────────────────────────────────────────
     async postErrand(userId: string, dto: PostErrandDto): Promise<IErrand> {
-        const [user, sub] = await Promise.all([
+        const [user, sub, freePlan] = await Promise.all([
             User.findById(userId)
                 .select('isStudent isStudentVerified subscriptionTier role')
                 .lean(),
@@ -75,6 +75,7 @@ export class ErrandService extends BaseService {
             })
                 .select('planSnapshot.cbcDiscount')
                 .lean(),
+            planModel.findOne({ tier: 'free' }).select('cbcDiscount').lean(),
         ])
 
         if (!user) throw new NotFoundError('User')
@@ -83,8 +84,9 @@ export class ErrandService extends BaseService {
             dto.budget,
             user.isStudentVerified ?? false,
         )
-        const discount = Number(sub?.planSnapshot?.cbcDiscount ?? 0)
-
+        const discount = Number(
+            sub?.planSnapshot?.cbcDiscount ?? freePlan?.cbcDiscount ?? 0,
+        )
         const fee = applyPlanDiscount(baseFee, discount)
         // Debit CBC before creating errand — throws if insufficient
         await cbcService.debit(

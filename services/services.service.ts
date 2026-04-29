@@ -317,7 +317,7 @@ export class ServiceListingService extends BaseService {
         if (!seller) throw new NotFoundError('Seller')
 
         // ── Fetch buyer's subscription for CBC discount ───────────────────────
-        const [buyer, buyerSub] = await Promise.all([
+        const [buyer, buyerSub, freePlan] = await Promise.all([
             User.findById(buyerId).select('isStudent isStudentVerified').lean(),
             Subscription.findOne({
                 userId: new mongoose.Types.ObjectId(buyerId),
@@ -326,17 +326,18 @@ export class ServiceListingService extends BaseService {
             })
                 .select('planSnapshot.cbcDiscount')
                 .lean(),
+            planModel.findOne({ tier: 'free' }).select('cbcDiscount').lean(),
         ])
         if (!buyer) throw new NotFoundError('Buyer')
 
-        // ── Charge CBC contact fee to buyer ───────────────────────────────────
         const baseFee = getCbcContactFee(
             tier.price,
             buyer.isStudentVerified ?? false,
         )
-        const discount = Number(buyerSub?.planSnapshot?.cbcDiscount ?? 0)
+        const discount = Number(
+            buyerSub?.planSnapshot?.cbcDiscount ?? freePlan?.cbcDiscount ?? 0,
+        ) // ← fallback
         const cbcFee = applyPlanDiscount(baseFee, discount)
-
         await cbcService.debit(
             buyerId,
             cbcFee,
