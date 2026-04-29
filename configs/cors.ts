@@ -17,7 +17,7 @@ const prodOrigins = [
   "https://campusbaze.com",
   "https://www.campusbaze.com",
   "https://app.campusbaze.com",
-  "https://campus-base-ten.vercel.app"
+  "https://campusbazefrontend.vercel.app",
 ];
 
 const allowedOrigins = [
