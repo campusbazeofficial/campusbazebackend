@@ -5,12 +5,14 @@ import {
   getUserReviews,
   getMyReviews,
 } from "../controllers/review.controller.js";
+import { updateLastSeen } from "../middlewares/updateLastSeen.js";
 
 const router = Router();
-
-router.get( "/mine",  authenticate, getMyReviews);
 router.get("/:userId", getUserReviews);
+router.use(authenticate);
+router.use(updateLastSeen)
+router.get( "/mine",  getMyReviews);
 
-router.post("/",    authenticate,  validateSubmitReview, submitReview);
+router.post("/",     validateSubmitReview, submitReview);
 
 export default router;

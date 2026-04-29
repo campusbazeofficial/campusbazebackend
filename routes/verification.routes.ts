@@ -12,11 +12,12 @@ import {
   getAllowedDocTypes,
 } from "../controllers/verifications.controller.js";
 import { USER_ROLE } from "../utils/constant.js";
+import { updateLastSeen } from "../middlewares/updateLastSeen.js";
 
 const router = Router();
 
 router.use(authenticate);
-
+router.use(updateLastSeen)
 router.post(VERIFICATION_PATHS.SUBMIT, verificationUpload, validateSubmitDoc, submitDocument);
 router.get( VERIFICATION_PATHS.MY,     getMyVerifications);
 router.get( VERIFICATION_PATHS.STATUS, getVerificationStatus);

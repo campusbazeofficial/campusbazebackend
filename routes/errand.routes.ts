@@ -29,13 +29,14 @@ import {
 import { ERRAND_PATHS } from '../constants/page-route.js'
 import { authenticate } from '../middlewares/auth.js'
 import { apiLimiter } from '../middlewares/limiter.js'
+import { updateLastSeen } from '../middlewares/updateLastSeen.js'
 
 const router = Router()
 // public
 router.get(ERRAND_PATHS.LIST, validateBrowseErrands, browseErrands)
 
 router.use(authenticate)
-
+router.use(updateLastSeen)
 router.get(ERRAND_PATHS.MY_POSTED, myPostedErrands)
 router.get(ERRAND_PATHS.MY_RUNNING, myRunningErrands)
 router.get(ERRAND_PATHS.MY_IN_PROGRESS, myInProgressErrands)

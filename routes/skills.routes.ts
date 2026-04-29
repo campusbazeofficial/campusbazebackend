@@ -10,11 +10,12 @@ import {
     getUserSkills,
     // matchRunnersForErrand,
 } from '../controllers/skill.controller.js'
+import { updateLastSeen } from '../middlewares/updateLastSeen.js'
 
 const router = Router()
 
 router.use(authenticate)
-
+router.use(updateLastSeen)
 router.get   (SKILL_PATHS.BASE,         getMySkills)
 router.post  (SKILL_PATHS.BASE,         validateAddSkill,    addSkill)
 router.patch (SKILL_PATHS.BY_ID,        validateUpdateSkill, updateSkill)

@@ -240,7 +240,7 @@ export class UserService extends BaseService {
         return result.secure_url
     }
 
-    async getPublicProfile(identifier: string) {
+    async getPublicProfile(identifier: string, requestingUserId?: string) {
         const user = await User.findOne({
             $or: [
                 { slug: identifier },
@@ -258,6 +258,9 @@ export class UserService extends BaseService {
         if (!user || !user.isActive || user.isSuspended)
             throw new NotFoundError('User')
 
+        const isOwnProfile =
+            !!requestingUserId && user._id.toString() === requestingUserId
+
         let company = null
         if (user.companyId) {
             company = await Company.findById(user.companyId)
@@ -265,21 +268,31 @@ export class UserService extends BaseService {
                 .lean()
         }
 
-        const profileUrl = `${process.env.FRONTEND_URL}/u/${user.slug}`
+        const [recentOrders, recentErrands] = await Promise.all([
+            Order.find({ sellerId: user._id, status: 'completed' })
+                .sort({ updatedAt: -1 })
+                .limit(3)
+                .select('title price completedAt createdAt listingId')
+                .populate('listingId', 'title')
+                .lean(),
+            Errand.find({ runnerId: user._id, status: 'completed' })
+                .sort({ updatedAt: -1 })
+                .limit(3)
+                .select('title agreedAmount updatedAt createdAt')
+                .lean(),
+        ])
 
-        return { user, company, profileUrl }
+        const profileUrl = `${process.env.CLIENT_URL}/u/${user.slug}`
+
+        return {
+            user,
+            company,
+            profileUrl,
+            recentOrders,
+            recentErrands,
+            isOwnProfile,
+        }
     }
-
-    // async getSessions(userId: string) {
-    //     return Session.find({
-    //         userId: new mongoose.Types.ObjectId(userId),
-    //         isRevoked: false,
-    //         expiresAt: { $gt: new Date() },
-    //     })
-    //         .select('deviceInfo ipAddress createdAt expiresAt')
-    //         .sort({ createdAt: -1 })
-    //         .lean()
-    // }
 
     async getSessions(
         userId: string,
@@ -326,10 +339,19 @@ export class UserService extends BaseService {
         })
     }
 
-    async searchUsers(opts: SearchUsersOptions) {
+    async searchUsers(
+        opts: SearchUsersOptions & { requestingUserId?: string },
+    ) {
         const filter: any = {
             isActive: true,
             isSuspended: false,
+        }
+
+        // Exclude the requesting user from results
+        if (opts.requestingUserId) {
+            filter._id = {
+                $ne: new mongoose.Types.ObjectId(opts.requestingUserId),
+            }
         }
 
         if (opts.isStudent !== undefined) filter.isStudent = opts.isStudent

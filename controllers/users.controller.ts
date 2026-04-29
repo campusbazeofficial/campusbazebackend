@@ -203,6 +203,7 @@ export const getPublicProfile = async (
     try {
         const result = await userService.getPublicProfile(
             req.params.identifier as string,
+            req.user?._id.toString(),
         )
         sendSuccess(res, result)
     } catch (err) {
@@ -231,7 +232,10 @@ export const searchUsers = async (
                     : undefined,
         }
 
-        const result = await userService.searchUsers(options)
+        const result = await userService.searchUsers({
+            ...options,
+            requestingUserId: req.user!._id.toString(),
+        })
 
         sendPaginated(res, result)
     } catch (err) {

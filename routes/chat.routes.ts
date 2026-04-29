@@ -7,10 +7,12 @@ import {
   sendMessage, validateSendMessage,
   markAsRead,
 } from "../controllers/chat.controller.js";
+import { updateLastSeen } from "../middlewares/updateLastSeen.js";
 
 const router = Router();
 
 router.use(authenticate);
+router.use(updateLastSeen);
 
 router.get( CHAT_PATHS.ROOMS,    listRooms);
 router.get( CHAT_PATHS.MESSAGES, getMessages);

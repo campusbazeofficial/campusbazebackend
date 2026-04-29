@@ -15,23 +15,25 @@ import {
   toggleAutoRenew,
   getNotification,
 } from "../controllers/notifications.controller.js";
+import { updateLastSeen } from "../middlewares/updateLastSeen.js";
 
 
 export const notificationRouter = Router();
 
 notificationRouter.use(authenticate);
-
+notificationRouter.use(updateLastSeen);
 notificationRouter.get(   NOTIFICATION_PATHS.LIST,       listNotifications);
 notificationRouter.patch( NOTIFICATION_PATHS.MARK_READ,  markNotificationRead);
 notificationRouter.patch( NOTIFICATION_PATHS.MARK_ALL,   markAllNotificationsRead);
 notificationRouter.delete(NOTIFICATION_PATHS.DELETE_ONE, deleteNotification);
-notificationRouter.get("/:slug/:id", authenticate, getNotification);
+notificationRouter.get("/:slug/:id",  getNotification);
 
 export const subscriptionRouter = Router();
 
 subscriptionRouter.get(SUBSCRIPTION_PATHS.PUBLIC_PLANS, getPublicSubscriptionPlans)
 
 subscriptionRouter.use(authenticate);
+subscriptionRouter.use(updateLastSeen);
 subscriptionRouter.get(SUBSCRIPTION_PATHS.PLANS, getSubscriptionPlans);
 subscriptionRouter.get(  SUBSCRIPTION_PATHS.MY,         getMySubscription);
 subscriptionRouter.post( SUBSCRIPTION_PATHS.SUBSCRIBE,  validateSubscribe, initializeSubscription);
