@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Cancelled</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,sans-serif;">
+
+  <div style="max-width:600px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden;">
+
+    <div style="background:#dc2626;color:#fff;padding:30px;text-align:center;">
+      <h2 style="margin:0 0 8px;">{{appName}}</h2>
+      <p style="margin:0;font-size:15px;">Order Cancelled by Seller</p>
+    </div>
+
+    <div style="padding:30px;">
+      <p>Hello {{firstName}},</p>
+
+      <p>Unfortunately, the seller has cancelled your order <strong>"{{listingTitle}}"</strong> before it was delivered.</p>
+
+      <div style="background:#fef2f2;border-left:4px solid #dc2626;padding:16px;border-radius:6px;margin:24px 0;">
+        <p style="margin:0 0 6px;font-size:13px;color:#6b7280;text-transform:uppercase;letter-spacing:0.5px;">Cancellation Reason</p>
+        <p style="margin:0;font-size:15px;color:#111827;">{{reason}}</p>
+      </div>
+
+      <div style="background:#f8fafc;border-radius:8px;padding:20px;margin:24px 0;">
+        <table style="width:100%;border-collapse:collapse;">
+          <tr>
+            <td style="font-size:13px;color:#6b7280;padding:6px 0;">Order ID</td>
+            <td style="font-size:13px;color:#111827;text-align:right;font-weight:bold;">#{{orderId}}</td>
+          </tr>
+          <tr>
+            <td style="font-size:13px;color:#6b7280;padding:6px 0;">Service</td>
+            <td style="font-size:13px;color:#111827;text-align:right;">{{listingTitle}}</td>
+          </tr>
+          <tr>
+            <td style="font-size:13px;color:#6b7280;padding:6px 0;">Status</td>
+            <td style="font-size:13px;text-align:right;">
+              <span style="background:#fef2f2;color:#dc2626;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:bold;">Cancelled</span>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background:#f0fdf4;border-left:4px solid #16a34a;padding:16px;border-radius:6px;margin:24px 0;">
+        <p style="margin:0;font-size:14px;color:#15803d;">
+          💰 <strong>A full refund will be processed</strong> to your original payment method within 3–5 business days.
+        </p>
+      </div>
+
+      <p style="font-size:14px;color:#6b7280;">
+        We're sorry this happened. You can browse other sellers offering similar services on {{appName}}.
+      </p>
+
+      <div style="text-align:center;margin:30px 0;">
+        <a href="{{clientUrl}}/user/my-services"
+           style="background:#dc2626;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;font-weight:bold;">
+          Browse Other Sellers
+        </a>
+      </div>
+
+      <p style="font-size:13px;color:#9ca3af;">
+        If you have any concerns about this cancellation, please contact our support team <a href="mailto:support@campusbaze.com">support@campusbaze.com</a> and reference order <strong>#{{orderId}}</strong>.
+      </p>
+
+      <p>— The {{appName}} Team</p>
+    </div>
+
+    <div style="background:#f8fafc;padding:20px;text-align:center;border-top:1px solid #e5e7eb;">
+      <p style="margin:0;font-size:12px;color:#9ca3af;">© {{appName}}. All rights reserved.</p>
+    </div>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to {{appName}}</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f6f9; margin: 0; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 10px; overflow: hidden; }
+    .header { background: #0e3fa3; color: #fff; padding: 30px; text-align: center; }
+    .body { padding: 30px; }
+    .footer { background: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #666; }
+    .btn {
+      display: inline-block;
+      margin-top: 20px;
+      padding: 12px 28px;
+      background: #1a56db;
+      color: #fff !important;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+    }
+    .feature { margin-bottom: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="header">
+      <h2>{{appName}}</h2>
+      <p>Business & Talent Marketplace</p>
+    </div>
+
+    <div class="body">
+      <h3>Welcome, {{companyName}}</h3>
+
+      <p>
+        Your company has successfully joined <strong>{{appName}}</strong> —
+        a platform designed to connect businesses with talented students,
+        professionals, and opportunities across campuses.
+      </p>
+
+      <p><strong>What you can do next:</strong></p>
+
+      <div class="feature">✔ Post job opportunities and internships</div>
+      <div class="feature">✔ Discover and hire top student talent</div>
+      <div class="feature">✔ Promote your services to a targeted audience</div>
+      <div class="feature">✔ Build your brand within campus communities</div>
+
+      <p>
+        To activate your account, please verify your email address using the OTP sent to you.
+      </p>
+
+      <a href="{{clientUrl}}/auth/verify-email" class="btn">Verify Email</a>
+
+      <p style="margin-top: 20px;">
+        If you need assistance setting up your company profile, our team is here to help.
+      </p>
+
+      <p>
+        — The {{appName}} Team
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>
+        You received this email because your company signed up on {{appName}}.
+      </p>
+    </div>
+  </div>
+</body>
+</html>

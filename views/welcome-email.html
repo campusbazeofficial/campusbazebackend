@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to {{appName}}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #333; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #1a56db 0%, #0e3fa3 100%); padding: 40px 32px; text-align: center; }
+    .header h1 { color: #ffffff; font-size: 26px; font-weight: 700; }
+    .header p { color: rgba(255,255,255,0.85); font-size: 14px; margin-top: 6px; }
+    .body { padding: 40px 32px; }
+    .greeting { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+    .text { font-size: 15px; line-height: 1.7; margin-bottom: 16px; color: #4b5563; }
+    .cta { text-align: center; margin: 32px 0; }
+    .btn {
+      display: inline-block;
+      background: #1a56db;
+      color: #ffffff !important;
+      text-decoration: none;
+      padding: 14px 36px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .highlight {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 8px;
+      margin: 20px 0;
+      font-size: 14px;
+      color: #374151;
+    }
+    .footer { background: #f9fafb; padding: 24px 32px; text-align: center; border-top: 1px solid #e5e7eb; }
+    .footer p { font-size: 12px; color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <div class="header">
+      <h1>{{appName}}</h1>
+      <p>Connecting Talent to Real Opportunity</p>
+    </div>
+
+    <div class="body">
+      <p class="greeting">Welcome, {{firstName}}</p>
+
+      <p class="text">
+        {{appName}} is a dual-interface digital marketplace built to connect
+        talent with real-time opportunities — across campuses and beyond.
+      </p>
+
+      <div class="highlight">
+        Whether you're a student, professional, or business, the platform is designed
+        to help you discover, collaborate, and grow in a truly global ecosystem.
+      </div>
+
+      <p class="text">
+        Your account has been created successfully. To get started, please verify your email address using the OTP sent to you.
+      </p>
+
+      <div class="cta">
+        <a href="{{clientUrl}}/auth/verify-email" class="btn">Verify Email</a>
+      </div>
+
+      <p class="text">
+        Once verified, you can begin exploring opportunities, connecting with others,
+        and building your presence on the platform.
+      </p>
+
+      <p class="text">
+        — The {{appName}} Team
+      </p>
+    </div>
+
+    <div class="footer">
+      <p>
+        You received this email because you signed up for {{appName}}.<br />
+        &copy; {{appName}}. All rights reserved.
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>

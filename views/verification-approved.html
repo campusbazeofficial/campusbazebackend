@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verification Approved — {{appName}}</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6f9; color: #333; }
+    .wrapper { max-width: 600px; margin: 40px auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .header { background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 40px 32px; text-align: center; }
+    .header h1 { color: #ffffff; font-size: 26px; font-weight: 700; }
+    .header p  { color: rgba(255,255,255,0.85); font-size: 14px; margin-top: 6px; }
+    .badge-row { text-align: center; margin: -28px 0 0; }
+    .badge {
+      display: inline-block;
+      background: #fff;
+      border-radius: 50%;
+      width: 56px; height: 56px;
+      line-height: 56px;
+      font-size: 28px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .body  { padding: 36px 32px; }
+    .greeting { font-size: 20px; font-weight: 600; margin-bottom: 16px; }
+    .text  { font-size: 15px; line-height: 1.7; margin-bottom: 16px; color: #4b5563; }
+    .highlight {
+      background: #ecfdf5;
+      border-left: 4px solid #059669;
+      padding: 16px 20px;
+      border-radius: 6px;
+      margin: 20px 0;
+      font-size: 14px;
+      color: #065f46;
+      font-weight: 500;
+    }
+    .doc-label {
+      display: inline-block;
+      background: #f0fdf4;
+      color: #166534;
+      border: 1px solid #bbf7d0;
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .cta { text-align: center; margin: 32px 0; }
+    .btn {
+      display: inline-block;
+      background: #059669;
+      color: #ffffff !important;
+      text-decoration: none;
+      padding: 14px 36px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+    }
+    .footer { background: #f9fafb; padding: 24px 32px; text-align: center; border-top: 1px solid #e5e7eb; }
+    .footer p { font-size: 12px; color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+
+    <div class="header">
+      <h1>{{appName}}</h1>
+      <p>Verification Status Update</p>
+    </div>
+
+    <div class="badge-row"><span class="badge">✅</span></div>
+
+    <div class="body">
+      <p class="greeting">Congratulations, {{firstName}}!</p>
+
+      <div class="highlight">
+        Your <strong>{{docTypeLabel}}</strong> has been verified successfully.
+        Your account now carries a verification badge.
+      </div>
+
+      <p class="text">
+        You've unlocked increased trust on the platform. Verified accounts enjoy
+        higher visibility, reduced CBC contact fees, and access to premium features.
+      </p>
+
+      <p class="text">
+        <strong>What's next?</strong> Head back to the platform to start exploring
+        errands, services, and opportunities available to verified members.
+      </p>
+
+      <div class="cta">
+        <a href="{{clientUrl}}/user/dashboard" class="btn">Go to Dashboard</a>
+      </div>
+
+      <p class="text">
+        If you have any questions, reply to this email or reach us through the
+        help centre on the platform.
+      </p>
+
+      <p class="text">— The {{appName}} Team</p>
+    </div>
+
+    <div class="footer">
+      <p>
+        You received this email because your identity document was submitted for review on {{appName}}.<br />
+        &copy; {{appName}}. All rights reserved.
+      </p>
+    </div>
+
+  </div>
+</body>
+</html>
