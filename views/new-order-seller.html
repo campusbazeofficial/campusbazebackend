@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>New Order Received</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,sans-serif;">
+
+  <div style="max-width:600px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden;">
+
+    <div style="background:#16a34a;color:#fff;padding:30px;text-align:center;">
+      <h2>{{appName}}</h2>
+      <p>You’ve got a new order</p>
+    </div>
+
+    <div style="padding:30px;">
+      <h3>Hello {{name}},</h3>
+
+      <p>
+        You’ve received a new order for <strong>{{listingTitle}}</strong>.
+      </p>
+
+      <p>
+        <strong>Order ID:</strong> {{orderId}}
+      </p>
+
+      <div style="text-align:center;margin:30px 0;">
+        <a href="{{clientUrl}}/user/my-services"
+           style="background:#16a34a;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;">
+          View Order
+        </a>
+      </div>
+
+      <p>
+        Please review the requirements and start working as soon as possible.
+      </p>
+
+      <p>— The {{appName}} Team</p>
+    </div>
+
+  </div>
+
+</body>
+</html>

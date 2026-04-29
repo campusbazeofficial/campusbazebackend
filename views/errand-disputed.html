@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dispute Opened</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f6f9;font-family:Arial,sans-serif;">
+
+  <div style="max-width:600px;margin:40px auto;background:#fff;border-radius:12px;overflow:hidden;">
+
+    <div style="background:#e53e3e;color:#fff;padding:30px;text-align:center;">
+      <h2 style="margin:0 0 8px;">{{appName}}</h2>
+      <p style="margin:0;font-size:15px;">Dispute Opened</p>
+    </div>
+
+    <div style="padding:30px;">
+      <p>Hello {{firstName}},</p>
+
+      <p>A dispute has been opened for the errand <strong>"{{errandTitle}}"</strong>.</p>
+
+      <p>Our team will review the details and resolve it shortly. Both parties will be notified of the outcome.</p>
+
+      <div style="text-align:center;margin:30px 0;">
+        <a href="{{clientUrl}}/user/my-errands"
+           style="background:#e53e3e;color:#fff;padding:12px 24px;text-decoration:none;border-radius:6px;display:inline-block;">
+          View Errand
+        </a>
+      </div>
+
+      <p style="color:#888;font-size:13px;">If you have additional information to support your case, please provide it through the platform.</p>
+
+      <p>— The {{appName}} Team</p>
+    </div>
+
+  </div>
+
+</body>
+</html>
