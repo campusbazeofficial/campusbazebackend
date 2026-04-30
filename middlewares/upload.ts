@@ -50,99 +50,109 @@ export const verificationDocUpload = multer({
 })
 
 // export const uploadToCloudinary = async (
-//   fileBuffer: Buffer,
-//   folder: string
-// ): Promise<UploadApiResponse> => {
-//   return new Promise<UploadApiResponse>((resolve, reject) => {
-//     const stream = cloudinary.uploader.upload_stream(
-//       { folder },
-//       (
-//         err: UploadApiErrorResponse | undefined,
-//         result: UploadApiResponse | undefined
-//       ) => {
-//         if (err) {
-//           reject(new Error(err?.message || "Cloudinary upload failed"));
-//           return;
-//         }
-
-//         if (!result) {
-//           reject(new Error("Cloudinary upload failed: no result returned"));
-//           return;
-//         }
-
-//         resolve(result);
-//       }
-//     );
-
-//     streamifier.createReadStream(fileBuffer).pipe(stream);
-//   });
-// };
-
-export const uploadToCloudinary = async (
-    fileBuffer: Buffer,
-    folder: string,
-    resourceType: 'image' | 'video' | 'raw' = 'image',
-): Promise<UploadApiResponse> => {
-    return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-            {
-                folder,
-                resource_type: resourceType,
-                ...(resourceType === 'raw' && {
-                    format: 'pdf',
-                }),
-            },
-            (err, result) => {
-                if (err) {
-                    reject(
-                        new Error(err?.message || 'Cloudinary upload failed'),
-                    )
-                    return
-                }
-
-                if (!result) {
-                    reject(
-                        new Error(
-                            'Cloudinary upload failed: no result returned',
-                        ),
-                    )
-                    return
-                }
-
-                resolve(result)
-            },
-        )
-
-        streamifier.createReadStream(fileBuffer).pipe(stream)
-    })
-}
-
-// New function — only for KYC/verification documents
-// export const uploadVerificationDoc = async (
 //     fileBuffer: Buffer,
 //     folder: string,
-//     mimeType: string,
+//     resourceType: 'image' | 'video' | 'raw' = 'image',
 // ): Promise<UploadApiResponse> => {
-//     const isPdf = mimeType === 'application/pdf'
-
 //     return new Promise((resolve, reject) => {
 //         const stream = cloudinary.uploader.upload_stream(
 //             {
 //                 folder,
-//                 type: 'authenticated',          // ← blocks direct browser access
-//                 resource_type: isPdf ? 'raw' : 'image',
-//                 ...(isPdf && { format: 'pdf' }),
+//                 resource_type: resourceType,
+//                 ...(resourceType === 'raw' && {
+//                     format: 'pdf',
+//                 }),
 //             },
 //             (err, result) => {
-//                 if (err) reject(new Error(err?.message || 'Cloudinary upload failed'))
-//                 else if (!result) reject(new Error('Cloudinary upload failed: no result'))
-//                 else resolve(result)
+//                 if (err) {
+//                     reject(
+//                         new Error(err?.message || 'Cloudinary upload failed'),
+//                     )
+//                     return
+//                 }
+
+//                 if (!result) {
+//                     reject(
+//                         new Error(
+//                             'Cloudinary upload failed: no result returned',
+//                         ),
+//                     )
+//                     return
+//                 }
+
+//                 resolve(result)
 //             },
 //         )
+
 //         streamifier.createReadStream(fileBuffer).pipe(stream)
 //     })
 // }
 
+
+export const uploadToCloudinary = async (
+  fileBuffer: Buffer,
+  folder: string,
+  resourceType: 'image' | 'video' | 'raw' = 'image'
+): Promise<UploadApiResponse> => {
+  return new Promise((resolve, reject) => {
+    const isImage = resourceType === 'image';
+
+    const uploadOptions: any = {
+      folder,
+      resource_type: resourceType,
+
+      // Better file organization
+      use_filename: true,
+      unique_filename: true,
+      overwrite: false,
+    };
+
+    // 📸 Image-specific optimizations
+    if (isImage) {
+      uploadOptions.transformation = [
+        {
+          width: 1920,          // prevent huge uploads
+          height: 1920,
+          crop: 'limit',       // keeps aspect ratio
+        },
+        {
+          quality: 'auto',     // compress intelligently
+          fetch_format: 'auto' // modern formats (webp/avif)
+        }
+      ];
+
+      // Optional: generate optimized versions immediately
+      uploadOptions.eager = [
+        { width: 400, height: 400, crop: 'fill', gravity: 'auto' }, // thumbnail
+        { width: 800, crop: 'limit' }, // medium
+      ];
+    }
+
+    // 📄 Raw files (PDF etc.)
+    if (resourceType === 'raw') {
+      uploadOptions.format = 'pdf';
+    }
+
+    const stream = cloudinary.uploader.upload_stream(
+      uploadOptions,
+      (err, result) => {
+        if (err) {
+          return reject(new Error(err?.message || 'Cloudinary upload failed'));
+        }
+
+        if (!result) {
+          return reject(
+            new Error('Cloudinary upload failed: no result returned')
+          );
+        }
+
+        resolve(result);
+      }
+    );
+
+    streamifier.createReadStream(fileBuffer).pipe(stream);
+  });
+};
 // In upload.ts
 export const uploadVerificationDoc = async (
     fileBuffer: Buffer,
