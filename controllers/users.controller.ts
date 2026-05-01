@@ -251,7 +251,7 @@ export const getReferralInfo = async (
     try {
         const user = req.user!
         const referralCode = user.referralCode
-        const referralLink = `${CLIENT_URL}/register?ref=${referralCode}`
+        const referralLink = `${CLIENT_URL}/auth/register?ref=${referralCode}`
 
         const qrCodeBase64 = await QRCode.toDataURL(referralLink, {
             errorCorrectionLevel: 'M',
