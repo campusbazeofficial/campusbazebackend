@@ -78,6 +78,35 @@ export const listUsers = async (
     }
 }
 
+// export const getUserDetail = async (
+//     req: Request,
+//     res: Response,
+//     next: NextFunction,
+// ): Promise<void> => {
+//     try {
+//         const user = await User.findById(req.params.userId)
+//             .select(
+//                 '-password -emailOtp -emailOtpExpires -emailOtpAttempts ' +
+//                     '-emailOtpBlockedUntil -emailOtpLastSentAt -phoneOtp -phoneOtpExpires ' +
+//                     '-passwordResetToken -passwordResetExpires',
+//             )
+//             .lean()
+//         if (!user) throw new NotFoundError('User')
+//         const [company, referralCount] = await Promise.all([
+//             user.companyId ? Company.findById(user.companyId).lean() : null,
+//             User.countDocuments({ referredBy: user._id }),
+//         ])
+
+//         if (user.companyId) {
+//             company = await Company.findById(user.companyId).lean()
+//         }
+
+//         sendSuccess(res, { user, company })
+//     } catch (err) {
+//         next(err)
+//     }
+// }
+
 export const getUserDetail = async (
     req: Request,
     res: Response,
@@ -93,12 +122,12 @@ export const getUserDetail = async (
             .lean()
         if (!user) throw new NotFoundError('User')
 
-        let company = null
-        if (user.companyId) {
-            company = await Company.findById(user.companyId).lean()
-        }
+        const [company, referralCount] = await Promise.all([
+            user.companyId ? Company.findById(user.companyId).lean() : null,
+            User.countDocuments({ referredBy: user._id }),
+        ])
 
-        sendSuccess(res, { user, company })
+        sendSuccess(res, { user, company, referralCount })
     } catch (err) {
         next(err)
     }
