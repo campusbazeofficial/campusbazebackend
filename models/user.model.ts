@@ -46,7 +46,11 @@ export interface IUser extends Document {
     isSuspended: boolean
     suspendedReason?: string
     lastSeen?: Date
-
+    location?: {
+        state: string
+        localGovt: string
+        village?: string
+    }
     // Subscription
     subscriptionTier: string
     subscriptionExpiresAt?: Date
@@ -114,6 +118,11 @@ const userSchema = new Schema<IUser>(
             type: String,
             enum: Object.values(USER_ROLE),
             default: USER_ROLE.STUDENT,
+        },
+        location: {
+            state: { type: String, trim: true },
+            localGovt: { type: String, trim: true },
+            village: { type: String, trim: true },
         },
         sellerCancelCount: { type: Number, default: 0 },
         isFlagged: { type: Boolean, default: false },

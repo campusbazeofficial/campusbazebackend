@@ -47,6 +47,11 @@ interface RegisterIndividualDto {
     isStudent?: boolean
     institutionName?: string
     referralCode?: string
+    location?: {
+        state: string
+        localGovt: string
+        village?: string
+    }
 }
 
 interface RegisterCorporateDto {
@@ -64,6 +69,11 @@ interface RegisterCorporateDto {
     country?: string
     state?: string
     referralCode?: string
+    location?: {
+        state: string
+        localGovt: string
+        village?: string
+    }
 }
 
 interface LoginDto {
@@ -124,6 +134,7 @@ export class AuthService extends BaseService {
             institutionName: dto.institutionName,
             referredBy: referrer?._id,
             subscriptionTier: SUBSCRIPTION_TIER.FREE,
+            location: dto.location,
         })
 
         await this._issueEmailOtp(user)
@@ -181,6 +192,7 @@ export class AuthService extends BaseService {
                         role: 'corporate' as UserRole,
                         referredBy: referrer?._id,
                         subscriptionTier: SUBSCRIPTION_TIER.CORPORATE_FREE,
+                        location: dto.location,
                     },
                 ],
                 { session: mongoSession },

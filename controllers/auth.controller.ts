@@ -8,33 +8,42 @@ const authService = new AuthService();
 
 // ─── Validation schemas ───────────────────────────────────────────────────────
 
+// Shared location schema — reuse across both
+export const locationSchema = z.object({
+    state:     z.string().min(1, 'State is required').max(100),
+    localGovt: z.string().min(1, 'Local government is required').max(100),
+    village:   z.string().max(100).optional(),
+})
+
 export const registerIndividualSchema = z.object({
-  firstName:       z.string().min(1).max(50),
-  lastName:        z.string().min(1).max(50),
-  email:           z.string().email(),
-  password:        z.string().min(8, "Password must be at least 8 characters"),
-  phone:           z.string().optional(),
-  isStudent:       z.boolean().optional(),
-  institutionName: z.string().optional(),
-  referralCode:    z.string().optional(),
-});
+    firstName:       z.string().min(1).max(50),
+    lastName:        z.string().min(1).max(50),
+    email:           z.string().email(),
+    password:        z.string().min(8, 'Password must be at least 8 characters'),
+    phone:           z.string().optional(),
+    isStudent:       z.boolean().optional(),
+    institutionName: z.string().optional(),
+    referralCode:    z.string().optional(),
+    location:        locationSchema.optional(),
+})
 
 export const registerCorporateSchema = z.object({
-  firstName:    z.string().min(1).max(50),
-  lastName:     z.string().min(1).max(50),
-  email:        z.string().email(),
-  password:     z.string().min(8),
-  phone:        z.string().optional(),
-  companyName:  z.string().min(1).max(100),
-  companyEmail: z.string().email(),
-  companyPhone: z.string().optional(),
-  rcNumber:     z.string().optional(),
-  industry:     z.string().optional(),
-  website:      z.string().url().optional().or(z.literal("")),
-  country:      z.string().optional(),
-  state:        z.string().optional(),
-  referralCode: z.string().optional(),
-});
+    firstName:    z.string().min(1).max(50),
+    lastName:     z.string().min(1).max(50),
+    email:        z.string().email(),
+    password:     z.string().min(8),
+    phone:        z.string().optional(),
+    companyName:  z.string().min(1).max(100),
+    companyEmail: z.string().email(),
+    companyPhone: z.string().optional(),
+    rcNumber:     z.string().optional(),
+    industry:     z.string().optional(),
+    website:      z.string().url().optional().or(z.literal('')),
+    country:      z.string().optional(),
+    state:        z.string().optional(),
+    referralCode: z.string().optional(),
+    location:     locationSchema.optional(),
+})
 
 export const verifyEmailSchema = z.object({
   email: z.string().email(),
