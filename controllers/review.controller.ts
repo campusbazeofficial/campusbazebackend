@@ -39,15 +39,15 @@ export const submitReview = async (
 };
 
 /**
- * GET /api/v1/reviews/:userId
- * Public — get all reviews a user has received.
+ * GET /api/v1/reviews/
+ * Public — get all reviews .
  */
-export const getUserReviews = async (
+export const getReviews = async (
   req: Request, res: Response, next: NextFunction
 ): Promise<void> => {
   try {
     const opts   = parsePaginationQuery(req.query as Record<string, string>);
-    const result = await reviewService.getUserReviews(req.params.userId as string, opts);
+    const result = await reviewService.getReviews(opts);
     sendPaginated(res, result);
   } catch (err) { next(err); }
 };
