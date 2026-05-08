@@ -16,6 +16,8 @@ import {
   generateBio,
   validateReferralCode,
   deleteAccount,
+  getRecentSearches,
+  clearRecentSearches,
 } from "../controllers/users.controller.js";
 import { USER_ROLE } from "../utils/constant.js";
 import { updateLastSeen } from "../middlewares/updateLastSeen.js";
@@ -41,4 +43,7 @@ router.get(USER_PATHS.SEARCH,         searchUsers);
 router.get(USER_PATHS.GENERATE_BIO, generateBio);
 router.get(USER_PATHS.PUBLIC_PROFILE, getPublicProfile);
 router.delete(USER_PATHS.DELETE_ACCOUNT, deleteAccount);
+router.get(USER_PATHS.GET_RECENT_SEARCHES, getRecentSearches);
+router.delete(USER_PATHS.CLEAR_RECENT_SEARCHES, clearRecentSearches);
+
 export default router;

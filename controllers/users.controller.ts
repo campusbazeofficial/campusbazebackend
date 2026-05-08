@@ -15,18 +15,24 @@ import Session from '../models/session.model.js'
 const userService = new UserService()
 
 export const updateIndividualProfileSchema = z.object({
-    firstName: z.string().min(1, 'First name cannot be empty').max(50).optional(),
+    firstName: z
+        .string()
+        .min(1, 'First name cannot be empty')
+        .max(50)
+        .optional(),
     lastName: z.string().min(1, 'Last name cannot be empty').max(50).optional(),
     displayName: z.string().max(60).optional(),
     bio: z.string().max(500).optional(),
     phone: z.string().optional(),
     institutionName: z.string().max(150).optional(),
     yearOfStudy: z.number().int().min(1).max(10).optional(),
-    location: z.object({
-        state: z.string().min(1).max(100).optional(),
-        localGovt: z.string().min(1).max(100).optional(),
-        village: z.string().min(1).max(100).optional(),
-    }).optional(),
+    location: z
+        .object({
+            state: z.string().min(1).max(100).optional(),
+            localGovt: z.string().min(1).max(100).optional(),
+            village: z.string().min(1).max(100).optional(),
+        })
+        .optional(),
 })
 export interface SearchUsersRequest {
     query?: string
@@ -49,11 +55,13 @@ export const updateCorporateProfileSchema = z.object({
     displayName: z.string().max(60).optional(),
     bio: z.string().max(500).optional(),
     phone: z.string().optional(),
-    location: z.object({
-        state: z.string().min(1).max(100).optional(),
-        localGovt: z.string().min(1).max(100).optional(),
-        village: z.string().min(1).max(100).optional(),
-    }).optional(),
+    location: z
+        .object({
+            state: z.string().min(1).max(100).optional(),
+            localGovt: z.string().min(1).max(100).optional(),
+            village: z.string().min(1).max(100).optional(),
+        })
+        .optional(),
     // Company document
     companyName: z.string().min(1).max(100).optional(),
     companyPhone: z.string().optional(),
@@ -217,33 +225,29 @@ export const getPublicProfile = async (
     }
 }
 
-export const searchUsers = async (
-    req: Request<{}, {}, SearchUsersRequest>,
+export const getRecentSearches = async (
+    req: Request,
     res: Response,
     next: NextFunction,
 ) => {
     try {
-        type UserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE]
+        const result = await userService.getRecentSearches(
+            req.user!._id.toString(),
+        )
+        sendSuccess(res, result)
+    } catch (err) {
+        next(err)
+    }
+}
 
-        // const allowedRoles = Object.values(USER_ROLE) as UserRole[]
-
-        const query = req.query as Record<string, string>
-
-        const options = {
-            ...parsePaginationQuery(query),
-            query: query.query,
-            isStudent:
-                query.isStudent !== undefined
-                    ? query.isStudent === 'true'
-                    : undefined,
-        }
-
-        const result = await userService.searchUsers({
-            ...options,
-            requestingUserId: req.user!._id.toString(),
-        })
-
-        sendPaginated(res, result)
+export const clearRecentSearches = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    try {
+        await userService.clearRecentSearches(req.user!._id.toString())
+        sendSuccess(res, {})
     } catch (err) {
         next(err)
     }
@@ -322,6 +326,38 @@ export const validateReferralCode = async (
                 avatar: referrer.avatar ?? null,
             },
         })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const searchUsers = async (
+    req: Request<{}, {}, SearchUsersRequest>,
+    res: Response,
+    next: NextFunction,
+) => {
+    try {
+        type UserRole = (typeof USER_ROLE)[keyof typeof USER_ROLE]
+
+        // const allowedRoles = Object.values(USER_ROLE) as UserRole[]
+
+        const query = req.query as Record<string, string>
+
+        const options = {
+            ...parsePaginationQuery(query),
+            query: query.query,
+            isStudent:
+                query.isStudent !== undefined
+                    ? query.isStudent === 'true'
+                    : undefined,
+        }
+
+        const result = await userService.searchUsers({
+            ...options,
+            requestingUserId: req.user!._id.toString(),
+        })
+
+        sendPaginated(res, result)
     } catch (err) {
         next(err)
     }

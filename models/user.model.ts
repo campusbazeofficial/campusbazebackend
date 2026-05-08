@@ -74,6 +74,7 @@ export interface IUser extends Document {
     sellerCancelCount: number
     isFlagged: boolean
     passwordResetToken?: string | null
+    recentSearches: string[]
     passwordResetExpires?: Date | null
     slug: string
     // Stats (denormalized for performance)
@@ -124,6 +125,7 @@ const userSchema = new Schema<IUser>(
             localGovt: { type: String, trim: true },
             village: { type: String, trim: true },
         },
+        recentSearches: { type: [String], default: [] },
         sellerCancelCount: { type: Number, default: 0 },
         isFlagged: { type: Boolean, default: false },
         isStudent: { type: Boolean, default: false },

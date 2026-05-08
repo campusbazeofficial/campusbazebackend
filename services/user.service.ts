@@ -150,7 +150,7 @@ export class UserService extends BaseService {
             user.markModified('location')
         }
 
-         await user.save()
+        await user.save()
         return user.getPublicProfile()
     }
 
@@ -183,15 +183,13 @@ export class UserService extends BaseService {
             }
         }
         if (dto.location) {
-                user.location = {
-                    state: dto.location.state ?? user.location?.state ?? '',
-                    localGovt:
-                        dto.location.localGovt ??
-                        user.location?.localGovt ??
-                        '',
-                    village: dto.location.village ?? user.location?.village,
-                }
-                user.markModified('location')
+            user.location = {
+                state: dto.location.state ?? user.location?.state ?? '',
+                localGovt:
+                    dto.location.localGovt ?? user.location?.localGovt ?? '',
+                village: dto.location.village ?? user.location?.village,
+            }
+            user.markModified('location')
         }
         if (dto.companyName !== undefined) company.name = dto.companyName
         if (dto.companyPhone !== undefined) company.phone = dto.companyPhone
@@ -372,15 +370,52 @@ export class UserService extends BaseService {
         })
     }
 
+    // async searchUsers(
+    //     opts: SearchUsersOptions & { requestingUserId?: string },
+    // ) {
+    //     const filter: any = {
+    //         isActive: true,
+    //         isSuspended: false,
+    //     }
+
+    //     // Exclude the requesting user from results
+    //     if (opts.requestingUserId) {
+    //         filter._id = {
+    //             $ne: new mongoose.Types.ObjectId(opts.requestingUserId),
+    //         }
+    //     }
+
+    //     if (opts.isStudent !== undefined) filter.isStudent = opts.isStudent
+
+    //     if (opts.query) {
+    //         const escaped = opts.query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+    //         const regex = { $regex: escaped, $options: 'i' }
+
+    //         filter.$or = [
+    //             { firstName: regex },
+    //             { lastName: regex },
+    //             { displayName: regex },
+    //         ]
+    //     }
+
+    //     return paginate(
+    //         User,
+    //         filter,
+    //         {
+    //             page: opts.page ?? 1,
+    //             limit: opts.limit ?? 20,
+    //             sort: 'subscriptionWeight',
+    //             order: opts.order,
+    //         },
+    //         '-password -emailOtp -emailOtpExpires -phoneOtp -phoneOtpExpires ' +
+    //             '-passwordResetToken -passwordResetExpires',
+    //     )
+    // }
     async searchUsers(
         opts: SearchUsersOptions & { requestingUserId?: string },
     ) {
-        const filter: any = {
-            isActive: true,
-            isSuspended: false,
-        }
+        const filter: any = { isActive: true, isSuspended: false }
 
-        // Exclude the requesting user from results
         if (opts.requestingUserId) {
             filter._id = {
                 $ne: new mongoose.Types.ObjectId(opts.requestingUserId),
@@ -392,12 +427,30 @@ export class UserService extends BaseService {
         if (opts.query) {
             const escaped = opts.query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
             const regex = { $regex: escaped, $options: 'i' }
-
             filter.$or = [
                 { firstName: regex },
                 { lastName: regex },
                 { displayName: regex },
             ]
+
+            // Persist recent search — non-blocking, never throws
+            if (opts.requestingUserId) {
+                User.findByIdAndUpdate(opts.requestingUserId, {
+                    $pull: { recentSearches: opts.query }, // remove duplicate first
+                })
+                    .then(() =>
+                        User.findByIdAndUpdate(opts.requestingUserId, {
+                            $push: {
+                                recentSearches: {
+                                    $each: [opts.query],
+                                    $position: 0, // prepend
+                                    $slice: 10, // keep only last 10
+                                },
+                            },
+                        }),
+                    )
+                    .catch(() => null)
+            }
         }
 
         return paginate(
@@ -409,9 +462,18 @@ export class UserService extends BaseService {
                 sort: 'subscriptionWeight',
                 order: opts.order,
             },
-            '-password -emailOtp -emailOtpExpires -phoneOtp -phoneOtpExpires ' +
-                '-passwordResetToken -passwordResetExpires',
+            '-password -emailOtp -emailOtpExpires -phoneOtp -phoneOtpExpires -passwordResetToken -passwordResetExpires',
         )
+    }
+
+async getRecentSearches(userId: string): Promise<string[]> {
+    const user = await User.findById(userId).select('recentSearches').lean()
+    if (!user) throw new NotFoundError('User')
+    return (user.recentSearches ?? []) as unknown as string[]
+}
+
+    async clearRecentSearches(userId: string): Promise<void> {
+        await User.findByIdAndUpdate(userId, { $set: { recentSearches: [] } })
     }
 
     async getDashboard(userId: string): Promise<DashboardResponse> {

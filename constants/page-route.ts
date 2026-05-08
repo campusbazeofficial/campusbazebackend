@@ -43,6 +43,8 @@ export const USER_PATHS = {
     GENERATE_BIO: '/generate-bio',
     VALIDATE_REFERRAL_CODE: '/referral/validate/:code',
     DELETE_ACCOUNT: '/delete-account',
+    GET_RECENT_SEARCHES: '/search/recent',
+    CLEAR_RECENT_SEARCHES: '/search/recent',
 } as const
 
 export const WALLET_PATHS = {
@@ -210,6 +212,8 @@ export const USER_ROUTES = {
     VALIDATE_REFERRAL_CODE: `${USER_BASE}/referral/validate/{code}`,
     GENERATE_BIO: full(USER_BASE, USER_PATHS.GENERATE_BIO),
     DELETE_ACCOUNT: full(USER_BASE, USER_PATHS.DELETE_ACCOUNT),
+    GET_RECENT_SEARCHES: full(USER_BASE, USER_PATHS.GET_RECENT_SEARCHES),
+    CLEAR_RECENT_SEARCHES: full(USER_BASE, USER_PATHS.CLEAR_RECENT_SEARCHES),
 } as const
 
 export const WALLET_ROUTES = {

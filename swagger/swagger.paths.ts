@@ -441,6 +441,35 @@ export const userPaths = {
             },
         },
     },
+    [USER_ROUTES.GET_RECENT_SEARCHES]: {
+        get: {
+            tags: ['Users'],
+            summary: 'Get recent searches',
+            description:
+                'Returns the last 10 search queries made by the authenticated user.',
+            security: bearerAuth,
+            responses: {
+                ...r200('Recent searches retrieved'),
+                401: r401,
+                404: r404,
+            },
+        },
+    },
+
+    [USER_ROUTES.CLEAR_RECENT_SEARCHES]: {
+        delete: {
+            tags: ['Users'],
+            summary: 'Clear recent searches',
+            description:
+                'Clears all saved recent search queries for the authenticated user.',
+            security: bearerAuth,
+            responses: {
+                ...r200('Recent searches cleared'),
+                401: r401,
+                404: r404,
+            },
+        },
+    },
 }
 
 // ─── Wallet ───────────────────────────────────────────────────────────────────
