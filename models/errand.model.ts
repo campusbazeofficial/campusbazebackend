@@ -46,6 +46,11 @@ export interface IErrand extends Document {
     address: string
     deadline: Date
     status: ErrandStatus
+    location: {
+        state: string
+        localGovt: string
+        village?: string
+    }
 
     runnerId?: mongoose.Types.ObjectId
     acceptedBidId?: mongoose.Types.ObjectId
@@ -119,7 +124,11 @@ const errandSchema = new Schema<IErrand>(
         disputeReason: { type: String, maxlength: 1000 },
         disputeNote: { type: String, maxlength: 1000 },
         disputeResolvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
-
+        location: {
+            state: { type: String, required: true, trim: true },
+            localGovt: { type: String, required: true, trim: true },
+            village: { type: String, trim: true },
+        },
         escrowReference: { type: String },
         escrowConfirmed: { type: Boolean, default: false },
         cbcFeeCharged: { type: Number, default: 0 },
@@ -139,6 +148,7 @@ errandSchema.index({ runnerId: 1, status: 1 })
 errandSchema.index({ status: 1, category: 1 })
 errandSchema.index({ status: 1, createdAt: -1 })
 errandSchema.index({ escrowReference: 1 }, { sparse: true })
+errandSchema.index({ 'location.state': 1, 'location.localGovt': 1, status: 1 })
 
 const Errand = mongoose.model<IErrand>('Errand', errandSchema)
 export default Errand

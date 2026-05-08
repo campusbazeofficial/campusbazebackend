@@ -8,6 +8,7 @@ import { parsePaginationQuery } from '../utils/paginate.js'
 import { ERRAND_CATEGORY } from '../utils/constant.js'
 import { SkillService } from '../services/skill.service.js'
 import { BadRequestError, ConflictError } from '../utils/appError.js'
+import { locationSchema } from './auth.controller.js'
 
 const errandService = new ErrandService()
 const skillService = new SkillService()
@@ -26,6 +27,7 @@ export const postErrandSchema = z.object({
     deadline: z
         .string()
         .datetime({ message: 'Deadline must be a valid ISO datetime' }),
+    location: locationSchema,
 })
 
 export const placeBidSchema = z.object({

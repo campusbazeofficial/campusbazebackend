@@ -49,12 +49,20 @@ interface PostErrandDto {
     budget: number
     address: string
     deadline: Date
+    location: {
+        state: string
+        localGovt: string
+        village?: string
+    }
 }
 
 interface BrowseErrandsOptions extends PaginationOptions {
     category?: string
     status?: string
     maxBudget?: number
+    state?: string
+    localGovt?: string
+    village?: string
 }
 
 const cbcService = new CbcService()
@@ -116,6 +124,7 @@ export class ErrandService extends BaseService {
             address: dto.address,
             deadline: dto.deadline,
             cbcFeeCharged: fee,
+            location: dto.location,
         })
 
         // ── Auto-match runners in background — non-blocking, never throws ─────
@@ -160,6 +169,9 @@ export class ErrandService extends BaseService {
         if (opts.maxBudget !== undefined) {
             filter.budget = { $lte: opts.maxBudget }
         }
+        if (opts.state) filter['location.state'] = opts.state
+        if (opts.localGovt) filter['location.localGovt'] = opts.localGovt
+        if (opts.village) filter['location.village'] = opts.village
 
         const page = opts.page ?? 1
         const limit = Math.min(opts.limit ?? 20, 50)
@@ -459,15 +471,15 @@ export class ErrandService extends BaseService {
         const errand = await Errand.findById(errandId)
             .populate(
                 'posterId',
-                'firstName lastName displayName avatar averageRating isStudent identityVerificationBadge slug',
+                'firstName lastName displayName avatar averageRating isStudent identityVerificationBadge location slug',
             )
             .populate(
                 'runnerId',
-                'firstName lastName displayName avatar averageRating identityVerificationBadge slug',
+                'firstName lastName displayName avatar averageRating identityVerificationBadge location slug',
             )
             .populate(
                 'bids.runnerId',
-                'firstName lastName displayName avatar averageRating identityVerificationBadge slug',
+                'firstName lastName displayName avatar averageRating identityVerificationBadge location slug',
             )
             .lean()
 
@@ -531,8 +543,24 @@ export class ErrandService extends BaseService {
         amount: number,
         message?: string,
     ) {
-        const errand = await Errand.findById(errandId)
+        const [errand, runner] = await Promise.all([
+            Errand.findById(errandId),
+            User.findById(runnerId).select('location').lean(),
+        ])
         if (!errand) throw new NotFoundError('Errand')
+        if (!runner) throw new NotFoundError('Runner')
+
+        // ── Location guard ────────────────────────────────────────────────
+        if (
+            !runner.location ||
+            runner.location.state !== errand.location.state ||
+            runner.location.localGovt !== errand.location.localGovt
+        ) {
+            throw new ForbiddenError(
+                'You can only bid on errands in your local government area',
+            )
+        }
+
         if (errand.status !== ERRAND_STATUS.POSTED) {
             throw new ConflictError('This errand is no longer accepting bids')
         }
@@ -1008,19 +1036,35 @@ export class ErrandService extends BaseService {
 
         // 🔴 POSTER WINS
         else {
-            errand.status = ERRAND_STATUS.CANCELLED
+            // Capture before clearing — prevents TS narrowing to never
+            const runnerId = errand.runnerId
+            const sellerEarningsNGN = errand.sellerEarningsNGN
+
+            // Reset errand back to browseable
+            errand.status = ERRAND_STATUS.POSTED
+            errand.runnerId = undefined
+            errand.acceptedBidId = undefined
+            errand.agreedAmount = undefined
+            errand.commissionRate = undefined
+            errand.commissionNGN = undefined
+            errand.sellerEarningsNGN = undefined
+            errand.escrowReference = undefined
+            errand.escrowConfirmed = false
+            errand.bids = errand.bids.map((b) => ({
+                ...b,
+                status: BID_STATUS.PENDING,
+            })) as any
             await errand.save()
 
-            if (errand.runnerId && errand.sellerEarningsNGN) {
+            if (runnerId && sellerEarningsNGN) {
                 if (earningsWereHeld) {
                     await cbcService.reverseHeldEarnings(
-                        errand.runnerId.toString(),
-                        errand.sellerEarningsNGN,
+                        runnerId.toString(),
+                        sellerEarningsNGN,
                         errand._id.toString(),
                         `Dispute resolved in favour of poster: ${adminNote}`,
                     )
                 } else {
-                    // 💸 NO ESCROW → PAYSTACK REFUND
                     if (errand.paymentReference) {
                         await initiateRefund(errand.paymentReference)
                     }
@@ -1032,12 +1076,12 @@ export class ErrandService extends BaseService {
                     userId: errand.posterId.toString(),
                     type: NOTIFICATION_TYPE.ERRAND_UPDATE,
                     title: 'Dispute resolved in your favour',
-                    body: `Errand cancelled.`,
+                    body: `Your errand has been re-opened for new bids.`,
                     data: { errandId },
                 }),
-                errand.runnerId
+                runnerId
                     ? notificationService.create({
-                          userId: errand.runnerId.toString(),
+                          userId: runnerId.toString(),
                           type: NOTIFICATION_TYPE.ERRAND_UPDATE,
                           title: 'Dispute resolved',
                           body: `Resolved in favour of poster.`,
