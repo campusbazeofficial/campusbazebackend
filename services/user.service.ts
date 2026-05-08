@@ -40,6 +40,11 @@ export interface UpdateIndividualProfileDto {
     displayName?: string
     bio?: string
     phone?: string
+    location?: {
+        state?: string
+        localGovt?: string
+        village?: string
+    }
     institutionName?: string
     yearOfStudy?: number
 }
@@ -50,6 +55,11 @@ export interface UpdateCorporateProfileDto {
     displayName?: string
     bio?: string
     phone?: string
+        location?: {
+        state?: string
+        localGovt?: string
+        village?: string
+    }
     companyName?: string
     companyPhone?: string
     description?: string
@@ -117,6 +127,7 @@ export class UserService extends BaseService {
             'displayName',
             'bio',
             'phone',
+            'location',
         ]
 
         if (user.role === USER_ROLE.STUDENT) {
@@ -126,6 +137,14 @@ export class UserService extends BaseService {
         for (const key of allowed) {
             if (dto[key] !== undefined) {
                 ;(user as unknown as Record<string, unknown>)[key] = dto[key]
+            }
+        }
+        if (dto.location) {
+            user.location = {
+                state: dto.location.state ?? user.location?.state ?? '',
+                localGovt:
+                    dto.location.localGovt ?? user.location?.localGovt ?? '',
+                village: dto.location.village ?? user.location?.village,
             }
         }
 
@@ -154,10 +173,19 @@ export class UserService extends BaseService {
             'displayName',
             'bio',
             'phone',
+            'location',
         ]
         for (const key of directorFields) {
             if (dto[key] !== undefined) {
                 ;(user as unknown as Record<string, unknown>)[key] = dto[key]
+            }
+        }
+        if (dto.location) {
+            user.location = {
+                state: dto.location.state ?? user.location?.state ?? '',
+                localGovt:
+                    dto.location.localGovt ?? user.location?.localGovt ?? '',
+                village: dto.location.village ?? user.location?.village,
             }
         }
         if (dto.companyName !== undefined) company.name = dto.companyName
