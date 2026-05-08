@@ -7,7 +7,7 @@ import { sendSuccess, sendCreated, sendPaginated } from '../utils/response.js'
 import { parsePaginationQuery } from '../utils/paginate.js'
 import { ERRAND_CATEGORY } from '../utils/constant.js'
 import { SkillService } from '../services/skill.service.js'
-import { BadRequestError, ConflictError } from '../utils/appError.js'
+import { BadRequestError, ConflictError, ValidationError } from '../utils/appError.js'
 import { locationSchema } from './auth.controller.js'
 
 const errandService = new ErrandService()
@@ -46,6 +46,11 @@ export const disputeErrandSchema = z.object({
         .max(1000),
 })
 
+export const extendErrandDeadlineSchema = z.object({
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'date must be in YYYY-MM-DD format'),
+    time: z.string().regex(/^\d{2}:\d{2}$/, 'time must be in HH:MM format'),
+})
+
 export const browseErrandsSchema = z.object({
     category: z.string().optional(),
     status: z.string().optional(),
@@ -62,6 +67,7 @@ export const validatePostErrand = validate(postErrandSchema)
 export const validatePlaceBid = validate(placeBidSchema)
 export const validateCompleteErrand = validate(completeErrandSchema)
 export const validateDisputeErrand = validate(disputeErrandSchema)
+export const validateExtendErrandDeadline = validate(extendErrandDeadlineSchema)
 export const validateBrowseErrands = validate(browseErrandsSchema, 'query')
 
 // Multer for completion proof (image or PDF)
@@ -402,4 +408,31 @@ export const getErrandMatches = async (
     )
     sendSuccess(res, { matches, total: matches.length })
   } catch (err) { next(err) }
+}
+
+export const extendErrandDeadline = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    try {
+        const { date, time } = req.body
+        const newDeadline = new Date(`${date}T${time}:00.000Z`)
+
+        if (isNaN(newDeadline.getTime())) {
+            throw new ValidationError('Invalid date or time provided')
+        }
+        if (newDeadline <= new Date()) {
+            throw new ValidationError('New deadline must be in the future')
+        }
+
+        const result = await errandService.extendErrandDeadline(
+            req.user!._id.toString(),
+            req.params.errandId as string,
+            newDeadline,
+        )
+        sendSuccess(res, result)
+    } catch (err) {
+        next(err)
+    }
 }

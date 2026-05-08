@@ -1093,6 +1093,22 @@ export class ErrandService extends BaseService {
 
         return errand
     }
+
+    async extendErrandDeadline(
+        userId: string,
+        errandId: string,
+        newDeadline: Date,
+    ) {
+        const errand = await Errand.findById(errandId)
+        if (!errand) throw new NotFoundError('Errand')
+        if (errand.posterId.toString() !== userId) throw new ForbiddenError()
+        if (errand.status !== ERRAND_STATUS.POSTED)
+            throw new ConflictError('Cannot extend a non-posted errand')
+
+        errand.deadline = newDeadline
+        await errand.save()
+        return errand
+    }
     // ── Initiate escrow payment ───────────────────────────────────────────────
     async initiateEscrowPayment(
         userId: string,

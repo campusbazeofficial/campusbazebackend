@@ -18,6 +18,7 @@ import {
   deleteAccount,
   getRecentSearches,
   clearRecentSearches,
+  clearOneRecentSearch,
 } from "../controllers/users.controller.js";
 import { USER_ROLE } from "../utils/constant.js";
 import { updateLastSeen } from "../middlewares/updateLastSeen.js";
@@ -45,5 +46,6 @@ router.get(USER_PATHS.PUBLIC_PROFILE, getPublicProfile);
 router.delete(USER_PATHS.DELETE_ACCOUNT, deleteAccount);
 router.delete(USER_PATHS.CLEAR_RECENT_SEARCHES, clearRecentSearches);
 router.get(USER_PATHS.GET_RECENT_SEARCHES, getRecentSearches);
+router.delete(USER_PATHS.CLEAR_ONE_RECENT_SEARCH, clearOneRecentSearch);
 
 export default router;

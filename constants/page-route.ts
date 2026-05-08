@@ -45,6 +45,7 @@ export const USER_PATHS = {
     DELETE_ACCOUNT: '/delete-account',
     GET_RECENT_SEARCHES: '/search/get-recent',
     CLEAR_RECENT_SEARCHES: '/search/clear-recent',
+    CLEAR_ONE_RECENT_SEARCH: '/search/recent/:searchTerm',
 } as const
 
 export const WALLET_PATHS = {
@@ -119,6 +120,7 @@ export const ERRAND_PATHS = {
     CONFIRM: '/:errandId/confirm',
     CANCEL: '/:errandId/cancel',
     DISPUTE: '/:errandId/dispute',
+    EXTEND_DEADLINE: '/:errandId/extend-deadline',
 } as const
 
 export const SERVICE_PATHS = {
@@ -214,6 +216,7 @@ export const USER_ROUTES = {
     DELETE_ACCOUNT: full(USER_BASE, USER_PATHS.DELETE_ACCOUNT),
     GET_RECENT_SEARCHES: full(USER_BASE, USER_PATHS.GET_RECENT_SEARCHES),
     CLEAR_RECENT_SEARCHES: full(USER_BASE, USER_PATHS.CLEAR_RECENT_SEARCHES),
+    CLEAR_ONE_RECENT_SEARCH: `${USER_BASE}/search/recent/{searchTerm}`,
 } as const
 
 export const WALLET_ROUTES = {
@@ -294,6 +297,7 @@ export const ERRAND_ROUTES = {
     CONFIRM: `${ERRAND_BASE}/{errandId}/confirm`,
     CANCEL: `${ERRAND_BASE}/{errandId}/cancel`,
     DISPUTE: `${ERRAND_BASE}/{errandId}/dispute`,
+    EXTEND_DEADLINE: `${ERRAND_BASE}/{errandId}/extend-deadline`,
 } as const
 
 export const SERVICE_ROUTES = {

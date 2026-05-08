@@ -432,28 +432,9 @@ export class UserService extends BaseService {
                 { lastName: regex },
                 { displayName: regex },
             ]
-
-            // Persist recent search — non-blocking, never throws
-            if (opts.requestingUserId) {
-                User.findByIdAndUpdate(opts.requestingUserId, {
-                    $pull: { recentSearches: opts.query }, // remove duplicate first
-                })
-                    .then(() =>
-                        User.findByIdAndUpdate(opts.requestingUserId, {
-                            $push: {
-                                recentSearches: {
-                                    $each: [opts.query],
-                                    $position: 0, // prepend
-                                    $slice: 10, // keep only last 10
-                                },
-                            },
-                        }),
-                    )
-                    .catch(() => null)
-            }
         }
 
-        return paginate(
+        const result = await paginate(
             User,
             filter,
             {
@@ -464,16 +445,42 @@ export class UserService extends BaseService {
             },
             '-password -emailOtp -emailOtpExpires -phoneOtp -phoneOtpExpires -passwordResetToken -passwordResetExpires',
         )
+
+        if (opts.query && opts.requestingUserId && result.data.length > 0) {
+            User.findByIdAndUpdate(opts.requestingUserId, {
+                $pull: { recentSearches: opts.query },
+            })
+                .then(() =>
+                    User.findByIdAndUpdate(opts.requestingUserId, {
+                        $push: {
+                            recentSearches: {
+                                $each: [opts.query],
+                                $position: 0,
+                                $slice: 10,
+                            },
+                        },
+                    }),
+                )
+                .catch(() => null)
+        }
+
+        return result
     }
 
-async getRecentSearches(userId: string): Promise<string[]> {
-    const user = await User.findById(userId).select('recentSearches').lean()
-    if (!user) throw new NotFoundError('User')
-    return (user.recentSearches ?? []) as unknown as string[]
-}
+    async getRecentSearches(userId: string): Promise<string[]> {
+        const user = await User.findById(userId).select('recentSearches').lean()
+        if (!user) throw new NotFoundError('User')
+        return (user.recentSearches ?? []) as unknown as string[]
+    }
 
     async clearRecentSearches(userId: string): Promise<void> {
         await User.findByIdAndUpdate(userId, { $set: { recentSearches: [] } })
+    }
+
+    async clearOneRecentSearch(userId: string, query: string): Promise<void> {
+        await User.findByIdAndUpdate(userId, {
+            $pull: { recentSearches: query },
+        })
     }
 
     async getDashboard(userId: string): Promise<DashboardResponse> {

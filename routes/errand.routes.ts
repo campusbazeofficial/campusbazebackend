@@ -25,6 +25,8 @@ import {
     validateDisputeErrand,
     myBids,
     getErrandMatches,
+    validateExtendErrandDeadline,
+    extendErrandDeadline,
 } from '../controllers/errand.controller.js'
 import { ERRAND_PATHS } from '../constants/page-route.js'
 import { authenticate } from '../middlewares/auth.js'
@@ -61,5 +63,5 @@ router.patch(
 router.patch(ERRAND_PATHS.CONFIRM, confirmErrand)
 router.patch(ERRAND_PATHS.CANCEL, cancelErrand)
 router.patch(ERRAND_PATHS.DISPUTE, validateDisputeErrand, disputeErrand)
-
+router.patch(ERRAND_PATHS.EXTEND_DEADLINE, validateExtendErrandDeadline, extendErrandDeadline)
 export default router

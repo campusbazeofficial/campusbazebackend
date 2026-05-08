@@ -253,6 +253,21 @@ export const clearRecentSearches = async (
     }
 }
 
+export const clearOneRecentSearch = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+) => {
+    try {
+        await userService.clearOneRecentSearch(
+            req.user!._id.toString(),
+            req.params.query as string,
+        )
+        sendSuccess(res, {})
+    } catch (err) {
+        next(err)
+    }
+}
 export const getReferralInfo = async (
     req: Request,
     res: Response,

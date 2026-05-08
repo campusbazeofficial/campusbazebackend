@@ -470,6 +470,28 @@ export const userPaths = {
             },
         },
     },
+    [USER_ROUTES.CLEAR_ONE_RECENT_SEARCH]: {
+        delete: {
+            tags: ['Users'],
+            summary: 'Clear one recent search',
+            description:
+                'Clears a specific recent search query for the authenticated user.',
+            security: bearerAuth,
+            parameters: [
+                {
+                    name: 'query',
+                    in: 'path',
+                    required: true,
+                    schema: { type: 'string' },
+                },
+            ],
+            responses: {
+                ...r200('Recent search cleared'),
+                401: r401,
+                404: r404,
+            },
+        },
+    },
 }
 
 // ─── Wallet ───────────────────────────────────────────────────────────────────
@@ -1713,6 +1735,40 @@ export const errandPaths = {
                 ...r200('List of matched runners with scores'),
                 401: r401,
                 404: r404,
+            },
+        },
+    },
+    [ERRAND_ROUTES.EXTEND_DEADLINE]: {
+        patch: {
+            tags: ['Errands'],
+            summary: 'Extend errand deadline',
+            description:
+                'Allows the errand poster to extend the deadline of a posted errand. ' +
+                'The new deadline must be in the future. No additional CBC fee is charged.',
+            security: bearerAuth,
+            parameters: [pathParam('errandId')],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            required: ['date', 'time'],
+                            properties: {
+                                date: { type: 'string', example: '2026-05-20' },
+                                time: { type: 'string', example: '09:00' },
+                            },
+                        },
+                    },
+                },
+            },
+            responses: {
+                ...r200('Errand deadline extended successfully'),
+                400: r400,
+                401: r401,
+                403: r403,
+                404: r404,
+                409: r409,
             },
         },
     },
