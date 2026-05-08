@@ -43,8 +43,8 @@ export const USER_PATHS = {
     GENERATE_BIO: '/generate-bio',
     VALIDATE_REFERRAL_CODE: '/referral/validate/:code',
     DELETE_ACCOUNT: '/delete-account',
-    GET_RECENT_SEARCHES: '/search/recent',
-    CLEAR_RECENT_SEARCHES: '/search/recent',
+    GET_RECENT_SEARCHES: '/search/get-recent',
+    CLEAR_RECENT_SEARCHES: '/search/clear-recent',
 } as const
 
 export const WALLET_PATHS = {
