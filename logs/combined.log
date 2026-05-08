@@ -738,3 +738,16 @@
 2026-05-08 07:48:18 [info]: GET /api/v1/errands 200 - 775ms
 2026-05-08 07:57:16 [info]: GET /api/v1/errands 200 - 1742ms
 2026-05-08 08:03:25 [info]: GET /api/v1/errands 200 - 1384ms
+2026-05-08 13:19:52 [info]: POST /api/v1/auth/login 200 - 1453ms
+2026-05-08 13:21:04 [info]: GET /api/v1/users/me 200 - 512ms
+2026-05-08 13:22:45 [info]: PATCH /api/v1/users/me 200 - 709ms
+2026-05-08 13:29:29 [info]: PATCH /api/v1/users/me 200 - 692ms
+2026-05-08 13:29:49 [info]: PATCH /api/v1/users/me 200 - 628ms
+2026-05-08 13:31:33 [info]: GET /api/v1/users/me 200 - 484ms
+2026-05-08 13:32:52 [info]: GET /api/v1/users/me 200 - 510ms
+2026-05-08 13:33:03 [info]: PATCH /api/v1/users/me 200 - 685ms
+2026-05-08 13:33:14 [info]: PATCH /api/v1/users/me 200 - 619ms
+2026-05-08 13:34:27 [info]: PATCH /api/v1/users/me 200 - 708ms
+2026-05-08 13:37:12 [warn]: PATCH /api/v1/users/me 401 - 27ms
+2026-05-08 13:37:21 [info]: POST /api/v1/auth/login 200 - 1014ms
+2026-05-08 13:37:39 [info]: PATCH /api/v1/users/me 200 - 615ms

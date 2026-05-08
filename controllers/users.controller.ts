@@ -15,17 +15,18 @@ import Session from '../models/session.model.js'
 const userService = new UserService()
 
 export const updateIndividualProfileSchema = z.object({
-    firstName: z
-        .string()
-        .min(1, 'First name cannot be empty')
-        .max(50)
-        .optional(),
+    firstName: z.string().min(1, 'First name cannot be empty').max(50).optional(),
     lastName: z.string().min(1, 'Last name cannot be empty').max(50).optional(),
     displayName: z.string().max(60).optional(),
     bio: z.string().max(500).optional(),
     phone: z.string().optional(),
     institutionName: z.string().max(150).optional(),
     yearOfStudy: z.number().int().min(1).max(10).optional(),
+    location: z.object({
+        state: z.string().min(1).max(100).optional(),
+        localGovt: z.string().min(1).max(100).optional(),
+        village: z.string().min(1).max(100).optional(),
+    }).optional(),
 })
 export interface SearchUsersRequest {
     query?: string
@@ -48,6 +49,11 @@ export const updateCorporateProfileSchema = z.object({
     displayName: z.string().max(60).optional(),
     bio: z.string().max(500).optional(),
     phone: z.string().optional(),
+    location: z.object({
+        state: z.string().min(1).max(100).optional(),
+        localGovt: z.string().min(1).max(100).optional(),
+        village: z.string().min(1).max(100).optional(),
+    }).optional(),
     // Company document
     companyName: z.string().min(1).max(100).optional(),
     companyPhone: z.string().optional(),

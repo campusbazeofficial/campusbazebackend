@@ -55,7 +55,7 @@ export interface UpdateCorporateProfileDto {
     displayName?: string
     bio?: string
     phone?: string
-        location?: {
+    location?: {
         state?: string
         localGovt?: string
         village?: string
@@ -127,7 +127,7 @@ export class UserService extends BaseService {
             'displayName',
             'bio',
             'phone',
-            'location',
+            // 'location',
         ]
 
         if (user.role === USER_ROLE.STUDENT) {
@@ -146,9 +146,11 @@ export class UserService extends BaseService {
                     dto.location.localGovt ?? user.location?.localGovt ?? '',
                 village: dto.location.village ?? user.location?.village,
             }
+
+            user.markModified('location')
         }
 
-        await user.save()
+         await user.save()
         return user.getPublicProfile()
     }
 
@@ -173,7 +175,7 @@ export class UserService extends BaseService {
             'displayName',
             'bio',
             'phone',
-            'location',
+            // 'location',
         ]
         for (const key of directorFields) {
             if (dto[key] !== undefined) {
@@ -181,12 +183,15 @@ export class UserService extends BaseService {
             }
         }
         if (dto.location) {
-            user.location = {
-                state: dto.location.state ?? user.location?.state ?? '',
-                localGovt:
-                    dto.location.localGovt ?? user.location?.localGovt ?? '',
-                village: dto.location.village ?? user.location?.village,
-            }
+                user.location = {
+                    state: dto.location.state ?? user.location?.state ?? '',
+                    localGovt:
+                        dto.location.localGovt ??
+                        user.location?.localGovt ??
+                        '',
+                    village: dto.location.village ?? user.location?.village,
+                }
+                user.markModified('location')
         }
         if (dto.companyName !== undefined) company.name = dto.companyName
         if (dto.companyPhone !== undefined) company.phone = dto.companyPhone
