@@ -396,9 +396,17 @@ export class ErrandService extends BaseService {
         const limit = Math.min(100, Math.max(1, opts.limit ?? 20))
         const skip = (page - 1) * limit
 
+        const baseMatch = {
+            'bids.runnerId': uid,
+            $or: [
+                { status: { $ne: ERRAND_STATUS.POSTED } },
+                { deadline: { $gt: new Date() } },
+            ],
+        }
+
         const [results, totalArr] = await Promise.all([
             Errand.aggregate([
-                { $match: { 'bids.runnerId': uid } },
+                { $match: baseMatch },
                 { $unwind: '$bids' },
                 { $match: { 'bids.runnerId': uid } },
                 { $sort: { 'bids.createdAt': -1 } },
@@ -424,7 +432,7 @@ export class ErrandService extends BaseService {
                 },
             ]),
             Errand.aggregate([
-                { $match: { 'bids.runnerId': uid } },
+                { $match: baseMatch },
                 { $unwind: '$bids' },
                 { $match: { 'bids.runnerId': uid } },
                 { $count: 'total' },
