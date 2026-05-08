@@ -152,6 +152,7 @@ export class ErrandService extends BaseService {
     async browseErrands(opts: BrowseErrandsOptions) {
         const filter: Record<string, unknown> = {
             status: ERRAND_STATUS.POSTED,
+            deadline: { $gt: new Date() },
         }
 
         if (opts.category) filter.category = opts.category
@@ -223,6 +224,7 @@ export class ErrandService extends BaseService {
                         category: 1,
                         budget: 1,
                         status: 1,
+                        deadline: 1,
                         createdAt: 1,
 
                         poster: {

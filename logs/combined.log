@@ -733,3 +733,8 @@
 2026-04-29 07:44:09 [info]: PATCH /api/v1/admin/support/69f14c4232f285444aa03bbb 200 - 1383ms
 2026-04-29 07:44:31 [info]: PATCH /api/v1/admin/support/69f14c4232f285444aa03bbb 200 - 1604ms
 2026-04-29 07:53:07 [info]: GET /api/v1/admin/support/69f14c4232f285444aa03bbb 200 - 3192ms
+2026-05-07 21:14:36 [info]: GET /api/v1/reviews 200 - 257ms
+2026-05-07 21:14:42 [info]: GET /api/v1/reviews 200 - 303ms
+2026-05-08 07:48:18 [info]: GET /api/v1/errands 200 - 775ms
+2026-05-08 07:57:16 [info]: GET /api/v1/errands 200 - 1742ms
+2026-05-08 08:03:25 [info]: GET /api/v1/errands 200 - 1384ms
