@@ -939,16 +939,53 @@ export class ErrandService extends BaseService {
         return errand
     }
     // ── Confirm escrow payment (called by webhook) ────────────────────────────
-    async confirmEscrow(escrowReference: string): Promise<void> {
+    // async confirmEscrow(escrowReference: string): Promise<void> {
+    //     const errand = await Errand.findOneAndUpdate(
+    //         { escrowReference },
+    //         { escrowConfirmed: true },
+    //         { new: true }, // ← add { new: true } so you get the doc back
+    //     )
+
+    //     if (!errand) return
+
+    //     // 🔌 Real-time update
+    //     emitToUser(errand.posterId.toString(), 'errand:updated', {
+    //         id: errand._id.toString(),
+    //         escrowConfirmed: true,
+    //     })
+    //     if (errand.runnerId) {
+    //         emitToUser(errand.runnerId.toString(), 'errand:updated', {
+    //             id: errand._id.toString(),
+    //             escrowConfirmed: true,
+    //         })
+    //     }
+
+    //     // ✅ Notify runner that payment is confirmed and they can start
+    //     if (errand.runnerId) {
+    //         await notificationService.create({
+    //             userId: errand.runnerId.toString(),
+    //             type: NOTIFICATION_TYPE.ERRAND_UPDATE,
+    //             title: 'Payment confirmed — you can start!',
+    //             body: `The poster has paid for "${errand.title}". Mark it as started when you begin.`,
+    //             data: { errandId: errand._id.toString() },
+    //         })
+    //     }
+    // }
+
+    async confirmEscrow(escrowReference: string): Promise<boolean> {
         const errand = await Errand.findOneAndUpdate(
-            { escrowReference },
-            { escrowConfirmed: true },
-            { new: true }, // ← add { new: true } so you get the doc back
+            { escrowReference, paymentCaptured: false },
+            {
+                paymentProvider: 'paystack',
+                paymentReference: escrowReference,
+                paymentCaptured: true,
+                escrowConfirmed: true,
+            },
+            { new: true },
         )
 
-        if (!errand) return
+        if (!errand) return false
 
-        // 🔌 Real-time update
         emitToUser(errand.posterId.toString(), 'errand:updated', {
             id: errand._id.toString(),
             escrowConfirmed: true,
@@ -960,7 +997,6 @@ export class ErrandService extends BaseService {
             })
         }
 
-        // ✅ Notify runner that payment is confirmed and they can start
         if (errand.runnerId) {
             await notificationService.create({
                 userId: errand.runnerId.toString(),
@@ -970,6 +1006,8 @@ export class ErrandService extends BaseService {
                 data: { errandId: errand._id.toString() },
             })
         }
+
+        return true
     }
     // ── Resolve dispute (admin only) ──────────────────────────────────────────
     async resolveErrandDispute(

@@ -412,16 +412,62 @@ export class ServiceListingService extends BaseService {
         }
     }
     // ── Confirm escrow (webhook) ──────────────────────────────────────────────
-    async confirmOrderEscrow(escrowReference: string): Promise<void> {
+    // async confirmOrderEscrow(escrowReference: string): Promise<void> {
+    //     const order = await Order.findOneAndUpdate(
+    //         { escrowReference },
+    //         { escrowConfirmed: true, status: ORDER_STATUS.IN_PROGRESS },
+    //         { new: true },
+    //     )
+
+    //     if (!order) return
+
+    //     // 🔌 Emit real-time status to both buyer and seller
+    //     emitToUser(order.buyerId.toString(), 'order:updated', {
+    //         id: order._id.toString(),
+    //         status: ORDER_STATUS.IN_PROGRESS,
+    //     })
+    //     emitToUser(order.sellerId.toString(), 'order:updated', {
+    //         id: order._id.toString(),
+    //         status: ORDER_STATUS.IN_PROGRESS,
+    //     })
+
+    //     // ✅ Notify seller that payment is confirmed and work should begin
+    //     await notificationService.create({
+    //         userId: order.sellerId.toString(),
+    //         type: NOTIFICATION_TYPE.ORDER_UPDATE,
+    //         title: 'Payment confirmed — start working!',
+    //         body: `The buyer's payment has been confirmed. Your order is now active.`,
+    //         data: { orderId: order._id.toString() },
+    //     })
+
+    //     const [buyer, listing] = await Promise.all([
+    //         User.findById(order.buyerId).select('email').lean(),
+    //         ServiceListing.findById(order.listingId).select('title').lean(),
+    //     ])
+
+    //     await emailQueue.add('order-created', {
+    //         buyerEmail: buyer?.email ?? '',
+    //         sellerId: order.sellerId.toString(),
+    //         listingTitle: listing?.title ?? 'your order',
+    //         orderId: order._id.toString(),
+    //     })
+    // }
+
+    async confirmOrderEscrow(escrowReference: string): Promise<boolean> {
         const order = await Order.findOneAndUpdate(
-            { escrowReference },
-            { escrowConfirmed: true, status: ORDER_STATUS.IN_PROGRESS },
+            { escrowReference, paymentCaptured: false },
+            {
+                paymentProvider: 'paystack',
+                paymentReference: escrowReference,
+                paymentCaptured: true,
+                escrowConfirmed: true,
+                status: ORDER_STATUS.IN_PROGRESS,
+            },
             { new: true },
         )
 
-        if (!order) return
+        if (!order) return false
 
-        // 🔌 Emit real-time status to both buyer and seller
         emitToUser(order.buyerId.toString(), 'order:updated', {
             id: order._id.toString(),
             status: ORDER_STATUS.IN_PROGRESS,
@@ -431,7 +477,6 @@ export class ServiceListingService extends BaseService {
             status: ORDER_STATUS.IN_PROGRESS,
         })
 
-        // ✅ Notify seller that payment is confirmed and work should begin
         await notificationService.create({
             userId: order.sellerId.toString(),
             type: NOTIFICATION_TYPE.ORDER_UPDATE,
@@ -451,6 +496,8 @@ export class ServiceListingService extends BaseService {
             listingTitle: listing?.title ?? 'your order',
             orderId: order._id.toString(),
         })
+
+        return true
     }
     // ── Seller delivers ───────────────────────────────────────────────────────
     async deliverOrder(

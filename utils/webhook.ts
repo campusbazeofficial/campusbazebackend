@@ -144,62 +144,88 @@ async function handleChargeSuccess(data: ChargeSuccessData): Promise<void> {
             break
         }
 
-        case 'escrow': {
-            // Try order first — atomic update to avoid race conditions
-            const order = await Order.findOneAndUpdate(
-                { escrowReference: reference, paymentCaptured: false },
-                {
-                    paymentProvider: 'paystack',
-                    paymentReference: reference,
-                    paymentCaptured: true,
-                },
-                { new: true },
-            )
+        // case 'escrow': {
+        //     // Try order first — atomic update to avoid race conditions
+        //     const order = await Order.findOneAndUpdate(
+        //         { escrowReference: reference, paymentCaptured: false },
+        //         {
+        //             paymentProvider: 'paystack',
+        //             paymentReference: reference,
+        //             paymentCaptured: true,
+        //         },
+        //         { new: true },
+        //     )
 
-            if (order) {
+        //     if (order) {
+        //         await new ServiceListingService().confirmOrderEscrow(reference)
+        //         console.log(
+        //             `[Webhook] Order escrow confirmed — ref ${reference}`,
+        //         )
+        //         break
+        //     }
+
+        //     // Check if already processed (idempotency)
+        //     const alreadyOrder = await Order.exists({
+        //         escrowReference: reference,
+        //     })
+        //     if (alreadyOrder) {
+        //         console.log(
+        //             `[Webhook] Order escrow already captured — ref ${reference}`,
+        //         )
+        //         break
+        //     }
+
+        //     // Fall through to errand
+        //     const errand = await Errand.findOneAndUpdate(
+        //         { escrowReference: reference, paymentCaptured: false },
+        //         {
+        //             paymentProvider: 'paystack',
+        //             paymentReference: reference,
+        //             paymentCaptured: true,
+        //         },
+        //         { new: true },
+        //     )
+
+        //     if (errand) {
+        //         await new ErrandService().confirmEscrow(reference)
+        //         console.log(
+        //             `[Webhook] Errand escrow confirmed — ref ${reference}`,
+        //         )
+        //         break
+        //     }
+
+        //     const alreadyErrand = await Errand.exists({
+        //         escrowReference: reference,
+        //     })
+        //     if (alreadyErrand) {
+        //         console.log(
+        //             `[Webhook] Errand escrow already captured — ref ${reference}`,
+        //         )
+        //         break
+        //     }
+
+        //     console.warn(
+        //         `[Webhook] Unknown escrow reference — ref ${reference}`,
+        //     )
+        //     break
+        // }
+        case 'escrow': {
+            // Single call — confirmOrderEscrow handles the atomic update + idempotency
+            const orderHandled =
                 await new ServiceListingService().confirmOrderEscrow(reference)
+            if (orderHandled) {
                 console.log(
                     `[Webhook] Order escrow confirmed — ref ${reference}`,
                 )
                 break
             }
 
-            // Check if already processed (idempotency)
-            const alreadyOrder = await Order.exists({
-                escrowReference: reference,
-            })
-            if (alreadyOrder) {
-                console.log(
-                    `[Webhook] Order escrow already captured — ref ${reference}`,
-                )
-                break
-            }
-
-            // Fall through to errand
-            const errand = await Errand.findOneAndUpdate(
-                { escrowReference: reference, paymentCaptured: false },
-                {
-                    paymentProvider: 'paystack',
-                    paymentReference: reference,
-                    paymentCaptured: true,
-                },
-                { new: true },
+            const errandHandled = await new ErrandService().confirmEscrow(
+                reference,
             )
-
-            if (errand) {
-                await new ErrandService().confirmEscrow(reference)
+            if (errandHandled) {
                 console.log(
                     `[Webhook] Errand escrow confirmed — ref ${reference}`,
-                )
-                break
-            }
-
-            const alreadyErrand = await Errand.exists({
-                escrowReference: reference,
-            })
-            if (alreadyErrand) {
-                console.log(
-                    `[Webhook] Errand escrow already captured — ref ${reference}`,
                 )
                 break
             }
