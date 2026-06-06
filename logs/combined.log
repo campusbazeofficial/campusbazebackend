@@ -751,3 +751,10 @@
 2026-05-08 13:37:12 [warn]: PATCH /api/v1/users/me 401 - 27ms
 2026-05-08 13:37:21 [info]: POST /api/v1/auth/login 200 - 1014ms
 2026-05-08 13:37:39 [info]: PATCH /api/v1/users/me 200 - 615ms
+2026-05-08 15:17:30 [info]: GET /api-docs 301 - 7ms
+2026-05-08 15:17:31 [info]: GET /api-docs/ 200 - 4ms
+2026-05-08 15:17:31 [info]: GET /api-docs/swagger-ui-init.js 200 - 2ms
+2026-05-08 15:17:31 [info]: GET /api-docs/swagger-ui.css 200 - 15ms
+2026-05-08 15:17:31 [info]: GET /api-docs/swagger-ui-standalone-preset.js 200 - 14ms
+2026-05-08 15:17:31 [info]: GET /api-docs/swagger-ui-bundle.js 200 - 37ms
+2026-05-08 15:17:31 [info]: GET /api-docs/favicon-32x32.png 200 - 2ms

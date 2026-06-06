@@ -9,13 +9,20 @@ export const captureRawBody = (
   _res: Response,
   next: NextFunction
 ): void => {
-  const buffer = req.body as Buffer;
+  const body = req.body;
 
-  req.rawBody = buffer?.toString("utf8");
+  if (Buffer.isBuffer(body)) {
+    req.rawBody = body.toString("utf8");
+  } else if (typeof body === "string") {
+    req.rawBody = body;
+  } else {
+    req.rawBody = JSON.stringify(body);
+  }
 
   try {
     req.body = JSON.parse(req.rawBody || "{}");
-  } catch {
+  } catch (err) {
+    console.error("[Webhook] Failed to parse body:", req.rawBody, err);
     req.body = {};
   }
 
