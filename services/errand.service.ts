@@ -553,11 +553,10 @@ export class ErrandService extends BaseService {
         // ── Location guard ────────────────────────────────────────────────
         if (
             !runner.location ||
-            runner.location.state !== errand.location.state ||
-            runner.location.localGovt !== errand.location.localGovt
+            runner.location.state !== errand.location.state
         ) {
             throw new ForbiddenError(
-                'You can only bid on errands in your local government area',
+                'You can only bid on errands in your location',
             )
         }
 

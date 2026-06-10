@@ -1,3 +1,4 @@
+import User from '../models/user.model'
 import {
     sendNewOrderEmailToSeller,
     sendOrderCancelledBySellerEmail,
@@ -15,6 +16,8 @@ import {
     sendErrandDisputeResolvedEmail,
     sendSupportTicketUpdatedEmail,
     sendSupportTicketCreatedEmail,
+    sendVerificationApprovedEmail,
+    sendVerificationRejectedEmail,
 } from '../utils/emailSender'
 import { emailQueue } from '../utils/queue'
 
@@ -67,6 +70,11 @@ emailQueue.process('order-cancelled-by-seller', async (data: any) => {
         orderId,
         reason,
     )
+})
+
+emailQueue.process('order-payment-confirmed', async (data: any) => {
+    const { buyerEmail, listingTitle, orderId } = data
+    await sendOrderPlacedEmail(buyerEmail, listingTitle, orderId)
 })
 
 // ─── Errand processors ────────────────────────────────────────────────────────
@@ -148,4 +156,16 @@ emailQueue.process('support-ticket-updated', async (data: any) => {
         adminNote ?? '',
     )
 })
+emailQueue.process('verification-approved', async (data: any) => {
+    const { userId, docTypeLabel } = data
+    const user = await User.findById(userId).select('email firstName').lean()
+    if (!user?.email) return
+    await sendVerificationApprovedEmail(user.email, user.firstName, docTypeLabel)
+})
 
+emailQueue.process('verification-rejection', async (data: any) => {
+    const { userId, docTypeLabel, adminNote } = data
+    const user = await User.findById(userId).select('email firstName').lean()
+    if (!user?.email) return
+    await sendVerificationRejectedEmail(user.email, user.firstName, docTypeLabel, adminNote)
+})

@@ -390,7 +390,7 @@ export class ServiceListingService extends BaseService {
 
         await emailQueue.add('order-created', {
             buyerEmail,
-            sellerId: listing.sellerId,
+            sellerId: listing.sellerId.toString(),
             listingTitle: listing.title,
             orderId: order._id.toString(),
         })
@@ -490,9 +490,8 @@ export class ServiceListingService extends BaseService {
             ServiceListing.findById(order.listingId).select('title').lean(),
         ])
 
-        await emailQueue.add('order-created', {
+        await emailQueue.add('order-payment-confirmed', {
             buyerEmail: buyer?.email ?? '',
-            sellerId: order.sellerId.toString(),
             listingTitle: listing?.title ?? 'your order',
             orderId: order._id.toString(),
         })
@@ -895,7 +894,9 @@ export class ServiceListingService extends BaseService {
             { $inc: { sellerCancelCount: 1 } },
             { new: true },
         )
-
+        const listing = await ServiceListing.findById(order.listingId)
+            .select('title')
+            .lean()
         const isFlagged = (updatedSeller?.sellerCancelCount ?? 0) >= 5
 
         if (isFlagged) {
@@ -922,12 +923,12 @@ export class ServiceListingService extends BaseService {
                       },
                   })
                 : Promise.resolve(),
+
             emailQueue.add('order-cancelled-by-seller', {
                 buyerId: order.buyerId.toString(),
-                sellerId,
+                listingTitle: listing?.title ?? 'your order',
                 orderId,
                 reason,
-                isFlagged,
             }),
         ])
 

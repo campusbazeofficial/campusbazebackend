@@ -177,7 +177,7 @@ export const sendVerificationRejectedEmail = async (
   adminNote: string,
 ): Promise<boolean> => {
 
-  const html = loadTemplate("verification-rejected", {
+  const html = loadTemplate("verification-rejection", {
     firstName,
     docTypeLabel,
     adminNote,
