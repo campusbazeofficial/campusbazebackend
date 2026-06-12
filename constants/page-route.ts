@@ -12,6 +12,7 @@ export const NOTIFICATION_BASE = '/api/v1/notifications'
 export const SUBSCRIPTION_BASE = '/api/v1/subscriptions'
 export const CHAT_BASE = '/api/v1/chat'
 export const SKILL_BASE = '/api/v1/skills'
+export const WITHDRAWAL_BASE = '/api/v1/withdrawals'
 // export const PLAN_BASE = '/api/v1/plans'
 
 // ─── Relative path segments (used inside Express Router) ─────────────────────
@@ -171,6 +172,14 @@ export const SKILL_PATHS = {
     BY_ID: '/:skillId',
     USER_SKILLS: '/user/:userId',
     // MATCH_ERRAND: '/match/:errandId',
+} as const
+
+export const WITHDRAWAL_PATHS = {
+    REQUEST:  '/request',
+    HISTORY:  '/',
+    CANCEL:   '/:withdrawalId/cancel',
+    ADMIN_LIST:      '/admin/all',
+    ADMIN_PROCESS:   '/admin/:withdrawalId/process',
 } as const
 
 // export const PLAN_PATHS = {
@@ -350,6 +359,13 @@ export const SKILL_ROUTES = {
     // MATCH_ERRAND: full(SKILL_BASE, SKILL_PATHS.MATCH_ERRAND),
 } as const
 
+export const WITHDRAWAL_ROUTES = {
+    REQUEST: full(WITHDRAWAL_BASE, WITHDRAWAL_PATHS.REQUEST),
+    HISTORY: WITHDRAWAL_BASE,
+    CANCEL:  `${WITHDRAWAL_BASE}/{withdrawalId}/cancel`,
+    ADMIN_LIST: full(WITHDRAWAL_BASE, WITHDRAWAL_PATHS.ADMIN_LIST),
+    ADMIN_PROCESS: `${WITHDRAWAL_BASE}/admin/{withdrawalId}/process`,
+} as const
 // export const PLAN_ROUTES = {
 //     CREATE: full(PLAN_BASE, PLAN_PATHS.CREATE),
 //     LIST: full(PLAN_BASE, PLAN_PATHS.LIST),

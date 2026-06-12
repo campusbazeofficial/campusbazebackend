@@ -22,6 +22,7 @@ import serviceRoutes from "./routes/services.routes.js";;
 import webhookRoutes      from "./routes/webhook.routes.js";
 import reviewRoutes      from "./routes/review.routes.js";
 import skillRoutes      from "./routes/skills.routes.js";
+import withdrawalRouter from './routes/withdrawal.route.js'
 import supportRoutes      from "./routes/support.routes.js";
 import { notificationRouter, subscriptionRouter } from "./routes/notification.routes.js";
 
@@ -64,6 +65,7 @@ app.use("/api/v1/subscriptions", subscriptionRouter);
 app.use("/api/v1/chat",          chatRoutes);
 app.use("/api/v1/reviews",       reviewRoutes);
 app.use("/api/v1/skills",       skillRoutes);
+app.use('/api/v1/withdrawals', withdrawalRouter)
 app.use("/api/v1/support",       supportRoutes);
 // app.use("api/v1/plans", planRoutes)
 app.get("/health", (_req, res) => {

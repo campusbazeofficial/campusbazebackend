@@ -9,22 +9,26 @@ async function processMaturedWithdrawals(): Promise<void> {
     const now = new Date()
 
     const due = await Withdrawal.find({
-        status:    WITHDRAWAL_STATUS.PENDING,
+        status: WITHDRAWAL_STATUS.PENDING,
         releaseAt: { $lte: now },
     })
-        .select('_id userId reference amountNGN')
+        .select('_id userId reference amountNGN releaseAt status bankCode recipientCode')
         .lean()
+
+    console.log(`[WithdrawalCron] Checked at ${now.toISOString()} — found ${due.length} due`)
+
+    // Log all pending regardless of releaseAt to see if they exist at all
+    const allPending = await Withdrawal.countDocuments({ status: WITHDRAWAL_STATUS.PENDING })
+    console.log(`[WithdrawalCron] Total PENDING withdrawals in DB: ${allPending}`)
 
     if (due.length === 0) return
 
-    console.log(`[WithdrawalCron] ${due.length} withdrawal(s) ready to process`)
-
     for (const w of due) {
+        console.log(`[WithdrawalCron] Processing ${w._id} — releaseAt: ${w.releaseAt}, recipientCode: ${(w as any).recipientCode}`)
         try {
             await withdrawalService.processWithdrawal(w._id.toString())
-            console.log(`[WithdrawalCron] ✅ Processed withdrawal ${w._id} — ₦${w.amountNGN}`)
         } catch (err) {
-            console.error(`[WithdrawalCron] ❌ Failed withdrawal ${w._id}:`, err instanceof Error ? err.message : err)
+            console.error(`[WithdrawalCron] ❌ Failed ${w._id}:`, err instanceof Error ? err.message : err)
         }
     }
 }

@@ -58,6 +58,9 @@ async function resolvePrice(
 }
 
 function resolveExpiry(billingPeriod: BillingPeriod): Date {
+    if (process.env.NODE_ENV !== 'production') {
+        return dayjs().add(1, 'hour').toDate()
+    }
     return billingPeriod === 'monthly'
         ? dayjs().add(1, 'month').toDate()
         : dayjs().add(1, 'year').toDate()
@@ -289,10 +292,14 @@ export class SubscriptionService extends BaseService {
 
         const existing = await Subscription.findOne({
             userId: new mongoose.Types.ObjectId(userId),
-            tier,
             status: SUBSCRIPTION_STATUS.ACTIVE,
             expiresAt: { $gt: new Date() },
         }).lean()
+        if (existing) {
+            throw new ConflictError(
+                'You already have an active subscription. Cancel or upgrade your current plan first.',
+            )
+        }
 
         if (existing) {
             throw new ConflictError(
@@ -328,6 +335,7 @@ export class SubscriptionService extends BaseService {
                 benefits: plan.benefits,
                 features: plan.features,
             },
+            autoRenew: true,
         })
 
         const paystack = await initializeTransaction(
@@ -378,9 +386,17 @@ export class SubscriptionService extends BaseService {
             }
 
             const nextBillingDate =
-                subscription.billingPeriod === 'monthly'
-                    ? dayjs(subscription.expiresAt).subtract(3, 'day').toDate()
-                    : dayjs(subscription.expiresAt).subtract(7, 'day').toDate()
+                process.env.NODE_ENV !== 'production'
+                    ? dayjs(subscription.expiresAt)
+                          .subtract(5, 'minute')
+                          .toDate() // 55 mins into the 1hr cycle
+                    : subscription.billingPeriod === 'monthly'
+                      ? dayjs(subscription.expiresAt)
+                            .subtract(3, 'day')
+                            .toDate()
+                      : dayjs(subscription.expiresAt)
+                            .subtract(7, 'day')
+                            .toDate()
 
             await Subscription.findByIdAndUpdate(
                 subscription._id,

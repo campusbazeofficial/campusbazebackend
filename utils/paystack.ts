@@ -129,6 +129,7 @@ export const createTransferRecipient = async (
     name: string,
     currency = 'NGN',
 ): Promise<PaystackTransferRecipient> => {
+
     const { data } = await client().post('/transferrecipient', {
         type: 'nuban',
         name,
@@ -152,33 +153,59 @@ export const createTransferRecipient = async (
 /**
  * Initiate a payout transfer. amountNGN in Naira.
  */
-export const initiateTransfer = async (
-    amountNGN: number,
-    recipientCode: string,
-    reference: string,
-    reason = 'CampusBaze payout',
-): Promise<PaystackTransferResponse> => {
-    const { data } = await client().post('/transfer', {
-        source: 'balance',
-        amount: Math.round(amountNGN * 100),
-        recipient: recipientCode,
-        reference,
-        reason,
-    })
-    if (!data.status)
-        throw new AppError(`Paystack transfer failed: ${data.message}`, 502)
+// export const initiateTransfer = async (
+//     amountNGN: number,
+//     recipientCode: string,
+//     reference: string,
+//     reason = 'CampusBaze payout',
+// ): Promise<PaystackTransferResponse> => {
+//     const { data } = await client().post('/transfer', {
+//         source: 'balance',
+//         amount: Math.round(amountNGN * 100),
+//         recipient: recipientCode,
+//         reference,
+//         reason,
+//     })
+//     if (!data.status)
+//         throw new AppError(`Paystack transfer failed: ${data.message}`, 502)
 
-    const t = data.data
-    return {
-        transferCode: t.transfer_code,
-        reference: t.reference,
-        amount: t.amount,
-        status: t.status,
-    }
-}
+//     const t = data.data
+//     return {
+//         transferCode: t.transfer_code,
+//         reference: t.reference,
+//         amount: t.amount,
+//         status: t.status,
+//     }
+// }
 
 // ─── Webhook ──────────────────────────────────────────────────────────────────
 
+export const initiateTransfer = async (
+    amount: number,
+    recipientCode: string,
+    reference: string,
+    reason: string,
+) => {
+    try {
+        const { data } = await client().post('/transfer', {
+            source: 'balance',
+            amount: amount * 100, // convert to kobo
+            recipient: recipientCode,
+            reference,
+            reason,
+        })
+
+        if (!data.status)
+            throw new AppError(`Paystack transfer failed: ${data.message}`, 502)
+
+        return {
+            transferCode: data.data.transfer_code,
+        }
+    } catch (err: any) {
+        console.error('[Paystack] initiateTransfer error:', err.response?.data)
+        throw err
+    }
+}
 /**
  * Verify Paystack webhook HMAC signature.
  * Pass the raw request body (string) and the x-paystack-signature header.

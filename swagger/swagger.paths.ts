@@ -12,6 +12,7 @@ import {
     CHAT_ROUTES,
     SUBSCRIPTION_ROUTES,
     SKILL_ROUTES,
+    WITHDRAWAL_ROUTES,
 } from '../constants/page-route.js'
 
 // ─── Reusable fragments ───────────────────────────────────────────────────────
@@ -2518,6 +2519,136 @@ export const skillPaths = {
     //     responses: { ...r200("Matched runners"), 404: r404 },
     //   },
     // },
+}
+
+// ─── Withdrawals ──────────────────────────────────────────────────────────────
+
+export const withdrawalPaths = {
+    [WITHDRAWAL_ROUTES.REQUEST]: {
+        post: {
+            tags: ['Withdrawals'],
+            summary: 'Request a withdrawal to bank account',
+            description:
+                'Debits NGN earnings immediately and holds for 6hrs (verified + paid plan) or 24hrs (everyone else). ' +
+                'Transfer fires automatically after the hold period via cron. ' +
+                'Blocked if user has active disputes. Minimum withdrawal is ₦500.',
+            security: bearerAuth,
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            required: ['amountNGN', 'bankCode', 'bankName', 'accountNumber', 'accountName'],
+                            properties: {
+                                amountNGN: {
+                                    type: 'number',
+                                    minimum: 500,
+                                    example: 5000,
+                                    description: 'Amount in NGN to withdraw',
+                                },
+                                bankCode: {
+                                    type: 'string',
+                                    example: '058',
+                                    description: 'Paystack bank code — get from GET /wallet/banks',
+                                },
+                                bankName: {
+                                    type: 'string',
+                                    example: 'GTBank',
+                                },
+                                accountNumber: {
+                                    type: 'string',
+                                    minLength: 10,
+                                    maxLength: 10,
+                                    example: '0123456789',
+                                },
+                                accountName: {
+                                    type: 'string',
+                                    example: 'John Doe',
+                                    description: 'Verified account name from Paystack',
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            responses: {
+                ...r201('Withdrawal requested — funds held, transfer fires after hold period'),
+                400: r400,
+                401: r401,
+                403: r403,
+                409: r409,
+            },
+        },
+    },
+
+    [WITHDRAWAL_ROUTES.HISTORY]: {
+        get: {
+            tags: ['Withdrawals'],
+            summary: 'Get withdrawal history',
+            description: 'Returns all withdrawals for the authenticated user sorted by most recent. Paystack internal codes are excluded.',
+            security: bearerAuth,
+            responses: {
+                ...r200('List of withdrawals with status, amount, bank details, and timestamps'),
+                401: r401,
+            },
+        },
+    },
+
+    [WITHDRAWAL_ROUTES.CANCEL]: {
+        delete: {
+            tags: ['Withdrawals'],
+            summary: 'Cancel a pending withdrawal during hold period',
+            description: 'Can only cancel while status is PENDING and releaseAt has not passed. Earnings are immediately refunded back to the wallet.',
+            security: bearerAuth,
+            parameters: [pathParam('withdrawalId')],
+            responses: {
+                ...r200('Withdrawal cancelled — earnings refunded'),
+                401: r401,
+                404: r404,
+                409: r409,
+            },
+        },
+    },
+[WITHDRAWAL_ROUTES.ADMIN_LIST]: {
+    get: {
+        tags: ['Withdrawals'],
+        summary: 'Admin — list all withdrawals',
+        security: bearerAuth,
+        parameters: [
+            {
+                name: 'status',
+                in: 'query',
+                schema: {
+                    type: 'string',
+                    enum: ['pending', 'processing', 'paid', 'failed', 'cancelled'],
+                },
+            },
+        ],
+        responses: {
+            ...r200('List of all withdrawals with user details'),
+            401: r401,
+            403: r403,
+        },
+    },
+},
+
+[WITHDRAWAL_ROUTES.ADMIN_PROCESS]: {
+    post: {
+        tags: ['Withdrawals'],
+        summary: 'Admin — manually process a pending withdrawal',
+        description: 'Bypasses the hold period and immediately initiates the Paystack transfer.',
+        security: bearerAuth,
+        parameters: [pathParam('withdrawalId')],
+        responses: {
+            ...r200('Withdrawal processed — transfer initiated'),
+            401: r401,
+            403: r403,
+            404: r404,
+            409: r409,
+        },
+    },
+},
 }
 
 export const planPaths = {}
