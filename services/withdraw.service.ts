@@ -267,9 +267,16 @@ export class WithdrawalService extends BaseService {
         const isTrusted =
             user?.identityVerificationBadge === true &&
             user?.subscriptionTier !== 'free'
+        const holdHours = process.env.NODE_ENV !== 'production'
+            ? 0
+            : isTrusted ? 6 : 24
 
-        const holdHours = isTrusted ? 6 : 24
-        const releaseAt = dayjs().add(holdHours, 'hour').toDate()
+        const releaseAt = process.env.NODE_ENV !== 'production'
+            ? new Date() // immediate
+            : dayjs().add(holdHours, 'hour').toDate()
+
+        // const holdHours = isTrusted ? 6 : 24
+        // const releaseAt = dayjs().add(holdHours, 'hour').toDate()
 
         // ── Debit earnings immediately — held in withdrawal record ────────────────
         await cbcService.debitEarnings(
@@ -279,7 +286,8 @@ export class WithdrawalService extends BaseService {
             `Withdrawal requested — ${holdHours}hr hold in progress`,
             reference,
         )
-
+console.log('recipient object:', recipient)
+console.log('recipientCode to save:', recipient.recipientCode)
         const withdrawal = await Withdrawal.create({
             userId: new mongoose.Types.ObjectId(userId),
             bankCode,
@@ -293,6 +301,7 @@ export class WithdrawalService extends BaseService {
             releaseAt,
             requestedAt: new Date(),
         })
+console.log(`[Withdrawal] Created: ${withdrawal._id} — status: ${withdrawal.status} — releaseAt: ${withdrawal.releaseAt}`)
 
         emitToUser(userId, 'withdrawal:updated', {
             id: withdrawal._id.toString(),
@@ -357,6 +366,26 @@ export class WithdrawalService extends BaseService {
         }
     }
 
+    async adminProcessWithdrawal(withdrawalId: string) {
+        const withdrawal = await Withdrawal.findById(withdrawalId)
+        if (!withdrawal) throw new NotFoundError('Withdrawal')
+        if (withdrawal.status !== WITHDRAWAL_STATUS.PENDING) {
+            throw new ConflictError('Only pending withdrawals can be manually processed')
+        }
+
+        await this.processWithdrawal(withdrawalId)
+        return Withdrawal.findById(withdrawalId).lean()
+    }
+
+    async adminListWithdrawals(status?: string) {
+        const filter: Record<string, unknown> = {}
+        if (status) filter.status = status
+        return Withdrawal.find(filter)
+            .sort({ createdAt: -1 })
+            .populate('userId', 'firstName lastName email')
+            .select('-recipientCode -transferCode')
+            .lean()
+    }
     // ── Cancel withdrawal during hold period ──────────────────────────────────────
     async cancelWithdrawal(withdrawalId: string, userId: string) {
         const withdrawal = await Withdrawal.findOne({
