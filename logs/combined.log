@@ -798,3 +798,4 @@
 2026-06-11 11:53:02 [info]: POST /api/v1/webhooks/paystack 200 - 3ms
 2026-06-11 11:53:54 [warn]: POST /api/v1/subscriptions/subscribe 409 - 1438ms
 2026-06-11 11:54:21 [info]: GET /api/v1/subscriptions/my 200 - 970ms
+2026-06-19 22:21:54 [info]: POST /api/v1/auth/register/corporate 201 - 9326ms

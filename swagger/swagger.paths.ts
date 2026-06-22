@@ -2667,5 +2667,6 @@ export const allPaths = {
     ...chatPaths,
     ...reviewPaths,
     ...skillPaths,
+...withdrawalPaths,
     ...planPaths,
 }
