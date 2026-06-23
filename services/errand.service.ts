@@ -549,11 +549,14 @@ export class ErrandService extends BaseService {
         ])
         if (!errand) throw new NotFoundError('Errand')
         if (!runner) throw new NotFoundError('Runner')
-
+    console.log('runner.location:', runner.location)
+    console.log('errand.location:', errand.location)
+    console.log('state match:', runner.location?.state === errand.location?.state)
+    console.log('state match:', runner.location?.state?.trim().toLowerCase() === errand.location?.state?.trim().toLowerCase())
         // ── Location guard ────────────────────────────────────────────────
         if (
             !runner.location ||
-            runner.location.state !== errand.location.state
+            runner.location.state.trim().toLowerCase() !== errand.location.state.trim().toLowerCase()
         ) {
             throw new ForbiddenError(
                 'You can only bid on errands in your location',
