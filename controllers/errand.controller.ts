@@ -30,6 +30,23 @@ export const postErrandSchema = z.object({
     location: locationSchema,
 })
 
+export const editErrandSchema = z.object({
+    title: z.string().trim().max(120).optional(),
+    description: z.string().max(2000).optional(),
+    category: z.nativeEnum(ERRAND_CATEGORY).optional(),
+    budgetType: z.enum(['fixed', 'negotiable']).optional(),
+    budget: z.number().min(0).optional(),
+    address: z.string().max(300).optional(),
+    deadline: z.string().optional(), // coerced to Date in controller
+    location: z
+        .object({
+            state: z.string().trim().optional(),
+            localGovt: z.string().trim().optional(),
+            village: z.string().trim().optional(),
+        })
+        .optional(),
+})
+
 export const placeBidSchema = z.object({
     amount: z.number().positive('Bid amount must be positive'),
     message: z.string().max(500).optional(),
@@ -64,6 +81,7 @@ export const browseErrandsSchema = z.object({
 // ─── Middleware exports ───────────────────────────────────────────────────────
 
 export const validatePostErrand = validate(postErrandSchema)
+export const validateEditErrand = validate(editErrandSchema)
 export const validatePlaceBid = validate(placeBidSchema)
 export const validateCompleteErrand = validate(completeErrandSchema)
 export const validateDisputeErrand = validate(disputeErrandSchema)
@@ -90,6 +108,29 @@ export const postErrand = async (
             dto,
         )
         sendCreated(res, { errand })
+    } catch (err) {
+        next(err)
+    }
+}
+
+export const editErrand = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+): Promise<void> => {
+    try {
+        const dto = {
+            ...(req.body as z.infer<typeof editErrandSchema>),
+            ...(req.body.deadline && {
+                deadline: new Date(req.body.deadline as string),
+            }),
+        }
+        const errand = await errandService.editErrand(
+            req.user!._id.toString(),
+            req.params.errandId as string,
+            dto,
+        )
+        sendSuccess(res, { errand })
     } catch (err) {
         next(err)
     }

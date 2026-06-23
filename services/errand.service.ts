@@ -56,6 +56,21 @@ interface PostErrandDto {
     }
 }
 
+interface EditErrandDto {
+    title?: string
+    description?: string
+    category?: string
+    budgetType?: 'fixed' | 'negotiable'
+    budget?: number
+    address?: string
+    deadline?: Date
+    location?: {
+        state?: string
+        localGovt?: string
+        village?: string
+    }
+}
+
 interface BrowseErrandsOptions extends PaginationOptions {
     category?: string
     status?: string
@@ -157,6 +172,58 @@ export class ErrandService extends BaseService {
         return errand
     }
 
+    // ── Edit errand (poster only, POSTED status) ──────────────────────────────
+    async editErrand(
+        userId: string,
+        errandId: string,
+        dto: EditErrandDto,
+    ): Promise<IErrand> {
+        const errand = await Errand.findById(errandId)
+        if (!errand) throw new NotFoundError('Errand')
+
+        if (errand.posterId.toString() !== userId) throw new ForbiddenError()
+
+        if (errand.status !== ERRAND_STATUS.POSTED)
+            throw new ConflictError(
+                'Only errands that are still open for bids can be edited',
+            )
+
+        if (errand.bids.length > 0)
+            throw new ConflictError(
+                'Cannot edit an errand that already has bids',
+            )
+
+        // Apply scalar fields
+        if (dto.title !== undefined) errand.title = dto.title
+        if (dto.description !== undefined) errand.description = dto.description
+        if (dto.category !== undefined) errand.category = dto.category as any
+        if (dto.budgetType !== undefined) errand.budgetType = dto.budgetType
+        if (dto.budget !== undefined) errand.budget = dto.budget
+        if (dto.address !== undefined) errand.address = dto.address
+        if (dto.deadline !== undefined) errand.deadline = dto.deadline
+
+        // Merge location fields individually so partial updates are safe
+        if (dto.location) {
+            if (dto.location.state !== undefined)
+                errand.location.state = dto.location.state
+            if (dto.location.localGovt !== undefined)
+                errand.location.localGovt = dto.location.localGovt
+            if (dto.location.village !== undefined)
+                errand.location.village = dto.location.village
+        }
+
+        await errand.save()
+
+        await notificationService.create({
+            userId,
+            type: NOTIFICATION_TYPE.ERRAND_UPDATE,
+            title: 'Errand updated',
+            body: `Your errand "${errand.title}" has been updated.`,
+            data: { errandId },
+        })
+
+        return errand
+    }
     // ── Browse open errands ───────────────────────────────────────────────────
     async browseErrands(opts: BrowseErrandsOptions) {
         const filter: Record<string, unknown> = {
@@ -549,14 +616,22 @@ export class ErrandService extends BaseService {
         ])
         if (!errand) throw new NotFoundError('Errand')
         if (!runner) throw new NotFoundError('Runner')
-    console.log('runner.location:', runner.location)
-    console.log('errand.location:', errand.location)
-    console.log('state match:', runner.location?.state === errand.location?.state)
-    console.log('state match:', runner.location?.state?.trim().toLowerCase() === errand.location?.state?.trim().toLowerCase())
+        console.log('runner.location:', runner.location)
+        console.log('errand.location:', errand.location)
+        console.log(
+            'state match:',
+            runner.location?.state === errand.location?.state,
+        )
+        console.log(
+            'state match:',
+            runner.location?.state?.trim().toLowerCase() ===
+                errand.location?.state?.trim().toLowerCase(),
+        )
         // ── Location guard ────────────────────────────────────────────────
         if (
             !runner.location ||
-            runner.location.state.trim().toLowerCase() !== errand.location.state.trim().toLowerCase()
+            runner.location.state.trim().toLowerCase() !==
+                errand.location.state.trim().toLowerCase()
         ) {
             throw new ForbiddenError(
                 'You can only bid on errands in your location',

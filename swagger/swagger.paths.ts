@@ -1715,6 +1715,63 @@ export const errandPaths = {
             },
         },
     },
+    [ERRAND_ROUTES.EDIT]: {
+        patch: {
+            tags: ['Errands'],
+            summary: 'Edit a posted errand (poster, no bids yet)',
+            description:
+                'Allows the errand poster to update any fields on an errand that is still open for bids. ' +
+                'All fields are optional — only provided fields are updated. ' +
+                'Editing is blocked once any runner has placed a bid.',
+            security: bearerAuth,
+            parameters: [pathParam('errandId')],
+            requestBody: {
+                required: true,
+                content: {
+                    'application/json': {
+                        schema: {
+                            type: 'object',
+                            properties: {
+                                title: { type: 'string', maxLength: 120 },
+                                description: {
+                                    type: 'string',
+                                    maxLength: 2000,
+                                },
+                                category: { type: 'string' },
+                                budgetType: {
+                                    type: 'string',
+                                    enum: ['fixed', 'negotiable'],
+                                },
+                                budget: { type: 'number', minimum: 0 },
+                                address: { type: 'string', maxLength: 300 },
+                                deadline: {
+                                    type: 'string',
+                                    format: 'date-time',
+                                    example: '2026-07-01T10:00:00.000Z',
+                                },
+                                location: {
+                                    type: 'object',
+                                    properties: {
+                                        state: { type: 'string' },
+                                        localGovt: { type: 'string' },
+                                        village: { type: 'string' },
+                                    },
+                                },
+                            },
+                        },
+                    },
+                },
+            },
+            responses: {
+                ...r200('Errand updated successfully'),
+                400: r400,
+                401: r401,
+                403: r403,
+                404: r404,
+                409: r409,
+            },
+        },
+    },
     [ERRAND_ROUTES.ERRAND_MATCHES]: {
         get: {
             tags: ['Errands'],
@@ -2539,7 +2596,13 @@ export const withdrawalPaths = {
                     'application/json': {
                         schema: {
                             type: 'object',
-                            required: ['amountNGN', 'bankCode', 'bankName', 'accountNumber', 'accountName'],
+                            required: [
+                                'amountNGN',
+                                'bankCode',
+                                'bankName',
+                                'accountNumber',
+                                'accountName',
+                            ],
                             properties: {
                                 amountNGN: {
                                     type: 'number',
@@ -2550,7 +2613,8 @@ export const withdrawalPaths = {
                                 bankCode: {
                                     type: 'string',
                                     example: '058',
-                                    description: 'Paystack bank code — get from GET /wallet/banks',
+                                    description:
+                                        'Paystack bank code — get from GET /wallet/banks',
                                 },
                                 bankName: {
                                     type: 'string',
@@ -2565,7 +2629,8 @@ export const withdrawalPaths = {
                                 accountName: {
                                     type: 'string',
                                     example: 'John Doe',
-                                    description: 'Verified account name from Paystack',
+                                    description:
+                                        'Verified account name from Paystack',
                                 },
                             },
                         },
@@ -2573,7 +2638,9 @@ export const withdrawalPaths = {
                 },
             },
             responses: {
-                ...r201('Withdrawal requested — funds held, transfer fires after hold period'),
+                ...r201(
+                    'Withdrawal requested — funds held, transfer fires after hold period',
+                ),
                 400: r400,
                 401: r401,
                 403: r403,
@@ -2586,10 +2653,13 @@ export const withdrawalPaths = {
         get: {
             tags: ['Withdrawals'],
             summary: 'Get withdrawal history',
-            description: 'Returns all withdrawals for the authenticated user sorted by most recent. Paystack internal codes are excluded.',
+            description:
+                'Returns all withdrawals for the authenticated user sorted by most recent. Paystack internal codes are excluded.',
             security: bearerAuth,
             responses: {
-                ...r200('List of withdrawals with status, amount, bank details, and timestamps'),
+                ...r200(
+                    'List of withdrawals with status, amount, bank details, and timestamps',
+                ),
                 401: r401,
             },
         },
@@ -2599,7 +2669,8 @@ export const withdrawalPaths = {
         delete: {
             tags: ['Withdrawals'],
             summary: 'Cancel a pending withdrawal during hold period',
-            description: 'Can only cancel while status is PENDING and releaseAt has not passed. Earnings are immediately refunded back to the wallet.',
+            description:
+                'Can only cancel while status is PENDING and releaseAt has not passed. Earnings are immediately refunded back to the wallet.',
             security: bearerAuth,
             parameters: [pathParam('withdrawalId')],
             responses: {
@@ -2610,45 +2681,52 @@ export const withdrawalPaths = {
             },
         },
     },
-[WITHDRAWAL_ROUTES.ADMIN_LIST]: {
-    get: {
-        tags: ['Withdrawals'],
-        summary: 'Admin — list all withdrawals',
-        security: bearerAuth,
-        parameters: [
-            {
-                name: 'status',
-                in: 'query',
-                schema: {
-                    type: 'string',
-                    enum: ['pending', 'processing', 'paid', 'failed', 'cancelled'],
+    [WITHDRAWAL_ROUTES.ADMIN_LIST]: {
+        get: {
+            tags: ['Withdrawals'],
+            summary: 'Admin — list all withdrawals',
+            security: bearerAuth,
+            parameters: [
+                {
+                    name: 'status',
+                    in: 'query',
+                    schema: {
+                        type: 'string',
+                        enum: [
+                            'pending',
+                            'processing',
+                            'paid',
+                            'failed',
+                            'cancelled',
+                        ],
+                    },
                 },
+            ],
+            responses: {
+                ...r200('List of all withdrawals with user details'),
+                401: r401,
+                403: r403,
             },
-        ],
-        responses: {
-            ...r200('List of all withdrawals with user details'),
-            401: r401,
-            403: r403,
         },
     },
-},
 
-[WITHDRAWAL_ROUTES.ADMIN_PROCESS]: {
-    post: {
-        tags: ['Withdrawals'],
-        summary: 'Admin — manually process a pending withdrawal',
-        description: 'Bypasses the hold period and immediately initiates the Paystack transfer.',
-        security: bearerAuth,
-        parameters: [pathParam('withdrawalId')],
-        responses: {
-            ...r200('Withdrawal processed — transfer initiated'),
-            401: r401,
-            403: r403,
-            404: r404,
-            409: r409,
+    [WITHDRAWAL_ROUTES.ADMIN_PROCESS]: {
+        post: {
+            tags: ['Withdrawals'],
+            summary: 'Admin — manually process a pending withdrawal',
+            description:
+                'Bypasses the hold period and immediately initiates the Paystack transfer.',
+            security: bearerAuth,
+            parameters: [pathParam('withdrawalId')],
+            responses: {
+                ...r200('Withdrawal processed — transfer initiated'),
+                401: r401,
+                403: r403,
+                404: r404,
+                409: r409,
+            },
         },
     },
-},
 }
 
 export const planPaths = {}
@@ -2667,6 +2745,6 @@ export const allPaths = {
     ...chatPaths,
     ...reviewPaths,
     ...skillPaths,
-...withdrawalPaths,
+    ...withdrawalPaths,
     ...planPaths,
 }

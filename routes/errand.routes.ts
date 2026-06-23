@@ -27,6 +27,8 @@ import {
     getErrandMatches,
     validateExtendErrandDeadline,
     extendErrandDeadline,
+    validateEditErrand,
+    editErrand,
 } from '../controllers/errand.controller.js'
 import { ERRAND_PATHS } from '../constants/page-route.js'
 import { authenticate } from '../middlewares/auth.js'
@@ -50,6 +52,7 @@ router.post(ERRAND_PATHS.ESCROW_PAY, payForErrand)
 router.post(ERRAND_PATHS.LIST, apiLimiter, validatePostErrand, postErrand)
 router.get(ERRAND_PATHS.DETAIL, getErrand)
 router.post(ERRAND_PATHS.BID, apiLimiter, validatePlaceBid, placeBid)
+router.patch(ERRAND_PATHS.EDIT, apiLimiter, validateEditErrand, editErrand)
 router.patch(ERRAND_PATHS.ACCEPT_BID, acceptBid)
 router.patch(ERRAND_PATHS.WITHDRAW_BID, withdrawBid)
 router.get(ERRAND_PATHS.ERRAND_MATCHES, getErrandMatches)

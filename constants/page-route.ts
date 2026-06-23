@@ -110,6 +110,7 @@ export const ERRAND_PATHS = {
     MY_ACCEPTED: '/my/accepted', // ← new (poster view: errands with accepted bids)
     MY_BIDS: '/my/bids',
     MY_ACCEPTED_BIDS: '/my/bids/accepted', // ← new (runner view: their accepted bids)
+    EDIT: '/:errandId/edit',
     ESCROW_PAY: '/:errandId/pay',
     DETAIL: '/:errandId',
     BID: '/:errandId/bids',
@@ -299,6 +300,7 @@ export const ERRAND_ROUTES = {
     ERRAND_MATCHES: `${ERRAND_BASE}/{errandId}/matches`,
     DETAIL: `${ERRAND_BASE}/{errandId}`,
     BID: `${ERRAND_BASE}/{errandId}/bids`,
+    EDIT: `${ERRAND_BASE}/{errandId}/edit`,
     ACCEPT_BID: `${ERRAND_BASE}/{errandId}/bids/{bidId}/accept`,
     WITHDRAW_BID: `${ERRAND_BASE}/{errandId}/bids/{bidId}/withdraw`,
     START: `${ERRAND_BASE}/{errandId}/start`,
