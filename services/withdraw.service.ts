@@ -267,13 +267,20 @@ export class WithdrawalService extends BaseService {
         const isTrusted =
             user?.identityVerificationBadge === true &&
             user?.subscriptionTier !== 'free'
-        const holdHours = process.env.NODE_ENV !== 'production'
-            ? 0
-            : isTrusted ? 6 : 24
+        // const holdHours = process.env.NODE_ENV !== 'production'
+        //     ? 0
+        //     : isTrusted ? 0.5 : 2
 
-        const releaseAt = process.env.NODE_ENV !== 'production'
-            ? new Date() // immediate
-            : dayjs().add(holdHours, 'hour').toDate()
+        // const releaseAt = process.env.NODE_ENV !== 'production'
+        //     ? new Date() // immediate
+        //     : dayjs().add(holdHours, 'hour').toDate()
+    const holdMinutes = process.env.NODE_ENV !== 'production'
+        ? 0
+        : isTrusted ? 2 : 5
+
+    const releaseAt = process.env.NODE_ENV !== 'production'
+        ? new Date() // immediate
+        : dayjs().add(holdMinutes, 'minute').toDate()
 
         // const holdHours = isTrusted ? 6 : 24
         // const releaseAt = dayjs().add(holdHours, 'hour').toDate()
@@ -283,7 +290,7 @@ export class WithdrawalService extends BaseService {
             userId,
             amountNGN,
             WALLET_TX_TYPE.WITHDRAWAL,
-            `Withdrawal requested — ${holdHours}hr hold in progress`,
+            `Withdrawal requested — ${holdMinutes}min hold in progress`,
             reference,
         )
 console.log('recipient object:', recipient)
@@ -315,8 +322,8 @@ console.log(`[Withdrawal] Created: ${withdrawal._id} — status: ${withdrawal.st
             userId,
             type: NOTIFICATION_TYPE.PAYMENT,
             title: 'Withdrawal requested',
-            body: `Your withdrawal of ₦${amountNGN.toLocaleString()} will be processed in ${holdHours} hours.`,
-            data: { reference, releaseAt, amountNGN, holdHours },
+            body: `Your withdrawal of ₦${amountNGN.toLocaleString()} will be processed in ${holdMinutes} minutes.`,
+            data: { reference, releaseAt, amountNGN, holdMinutes },
         })
 
         return withdrawal
