@@ -810,3 +810,4 @@
 2026-06-23 12:03:45 [info]: GET /api-docs/favicon-32x32.png 200 - 5ms
 2026-06-24 07:03:50 [info]: POST /api/v1/auth/login 200 - 2610ms
 2026-06-24 07:06:27 [info]: GET /api/v1/errands 200 - 179ms
+2026-06-24 07:08:45 [info]: GET /api/v1/errands 200 - 997ms
