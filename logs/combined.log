@@ -799,3 +799,14 @@
 2026-06-11 11:53:54 [warn]: POST /api/v1/subscriptions/subscribe 409 - 1438ms
 2026-06-11 11:54:21 [info]: GET /api/v1/subscriptions/my 200 - 970ms
 2026-06-19 22:21:54 [info]: POST /api/v1/auth/register/corporate 201 - 9326ms
+2026-06-23 12:03:36 [warn]: GET /api/docs 404 - 14ms
+2026-06-23 12:03:36 [warn]: GET /favicon.ico 404 - 2ms
+2026-06-23 12:03:44 [info]: GET /api-docs 301 - 2ms
+2026-06-23 12:03:44 [info]: GET /api-docs/ 200 - 4ms
+2026-06-23 12:03:44 [info]: GET /api-docs/swagger-ui-init.js 200 - 1ms
+2026-06-23 12:03:44 [info]: GET /api-docs/swagger-ui.css 200 - 17ms
+2026-06-23 12:03:44 [info]: GET /api-docs/swagger-ui-standalone-preset.js 200 - 16ms
+2026-06-23 12:03:44 [info]: GET /api-docs/swagger-ui-bundle.js 200 - 24ms
+2026-06-23 12:03:45 [info]: GET /api-docs/favicon-32x32.png 200 - 5ms
+2026-06-24 07:03:50 [info]: POST /api/v1/auth/login 200 - 2610ms
+2026-06-24 07:06:27 [info]: GET /api/v1/errands 200 - 179ms

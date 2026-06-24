@@ -305,6 +305,7 @@ export class ErrandService extends BaseService {
                         status: 1,
                         deadline: 1,
                         createdAt: 1,
+                        location: 1,
 
                         poster: {
                             _id: '$poster._id',
